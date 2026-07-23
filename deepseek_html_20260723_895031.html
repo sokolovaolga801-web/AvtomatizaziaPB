@@ -12,56 +12,61 @@
         }
         body {
             font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            background: #ffffff;
+            background: #f4f7fc;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            height: 100vh;
+            margin: 0;
+            padding: 2vh 2vw;
         }
         .container {
-            width: 700px;
-            height: 650px;
+            width: 95vw;
+            max-width: 1200px;
+            height: 90vh;
+            max-height: 900px;
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             box-shadow: 0 12px 40px rgba(0,0,0,0.1);
-            padding: 20px 20px 16px;
+            padding: 2vh 2vw;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
         }
         h1 {
-            font-size: 20px;
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
             font-weight: 600;
             color: #0b2b4a;
-            margin-bottom: 4px;
+            margin-bottom: 0.4vh;
             flex-shrink: 0;
         }
         .subhead {
             color: #4a5f73;
-            font-size: 13px;
-            margin-bottom: 12px;
+            font-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            margin-bottom: 1.2vh;
             border-left: 3px solid #2b7be4;
-            padding-left: 12px;
+            padding-left: 0.8vw;
             background: #f0f5fe;
             border-radius: 0 6px 6px 0;
             line-height: 1.4;
             flex-shrink: 0;
         }
-        /* Бэклог (верхний список) */
+        /* Бэклог */
         .backlog {
             background: #f8faff;
             border: 2px dashed #b0c8dd;
             border-radius: 14px;
-            padding: 10px 12px;
-            margin-bottom: 12px;
+            padding: 0.8vh 1vw;
+            margin-bottom: 1.2vh;
             flex-shrink: 0;
-            max-height: 130px;
+            max-height: 18vh;
             overflow-y: auto;
             display: flex;
             flex-wrap: wrap;
             align-items: flex-start;
-            gap: 8px;
+            gap: 0.6vh 0.6vw;
             transition: background 0.2s;
         }
         .backlog.drag-over {
@@ -70,10 +75,10 @@
         }
         .backlog-label {
             width: 100%;
-            font-size: 13px;
+            font-size: clamp(0.7rem, 1.1vw, 0.9rem);
             font-weight: 600;
             color: #1a3a5e;
-            margin-bottom: 4px;
+            margin-bottom: 0.4vh;
             display: flex;
             justify-content: space-between;
         }
@@ -90,45 +95,46 @@
         /* Доска с колонками */
         .board {
             display: flex;
-            gap: 14px;
+            gap: 1.5vw;
             flex: 1;
             min-height: 0;
-            margin-bottom: 10px;
+            margin-bottom: 1vh;
         }
         .column {
             flex: 1;
             background: #f8faff;
             border-radius: 14px;
-            padding: 10px 10px 8px;
+            padding: 0.8vh 0.8vw;
             display: flex;
             flex-direction: column;
             border: 1px solid #e2eaf2;
             min-width: 0;
+            overflow: hidden;
         }
         .column-header {
             font-weight: 600;
-            font-size: 15px;
+            font-size: clamp(0.75rem, 1.2vw, 1rem);
             color: #1a3a5e;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 6px;
+            padding-bottom: 0.4vh;
             border-bottom: 2px solid #dce5f2;
             flex-shrink: 0;
         }
         .column-header .count {
             background: #dce5f2;
             border-radius: 30px;
-            padding: 0 10px;
-            font-size: 13px;
-            line-height: 24px;
+            padding: 0 0.6vw;
+            font-size: clamp(0.6rem, 0.9vw, 0.8rem);
+            line-height: 1.8;
             font-weight: 500;
         }
         .column-desc {
-            font-size: 11px;
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
             color: #5d738b;
-            margin: 4px 0 8px;
-            line-height: 1.3;
+            margin: 0.3vh 0 0.6vh;
+            line-height: 1.2;
             flex-shrink: 0;
         }
         .card-list {
@@ -136,9 +142,9 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            padding: 4px 0;
-            min-height: 40px;
+            gap: 0.4vh;
+            padding: 0.3vh 0;
+            min-height: 20px;
         }
         .card-list.drag-over {
             background: #eaf0fa;
@@ -146,16 +152,16 @@
         }
         .card {
             background: white;
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 13px;
+            border-radius: 8px;
+            padding: 0.5vh 0.8vw;
+            font-size: clamp(0.6rem, 0.9vw, 0.85rem);
             color: #1f3a57;
             box-shadow: 0 2px 6px rgba(0,0,0,0.04);
             border: 1px solid #e2eaf2;
             cursor: grab;
             transition: 0.15s;
             word-break: break-word;
-            line-height: 1.4;
+            line-height: 1.3;
             user-select: none;
         }
         .card:hover {
@@ -171,9 +177,9 @@
         }
         .empty-message {
             color: #a0b8d0;
-            font-size: 13px;
+            font-size: clamp(0.6rem, 0.9vw, 0.8rem);
             text-align: center;
-            padding: 20px 0;
+            padding: 1.5vh 0;
             font-style: italic;
         }
         /* Панель матрицы */
@@ -182,18 +188,39 @@
             flex-direction: column;
             flex: 1;
             overflow: hidden;
-            gap: 10px;
+            gap: 1vh;
         }
         .matrix-panel.active {
             display: flex;
         }
+        .matrix-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 0.5vh 1vw;
+        }
+        .matrix-header .title {
+            font-weight: 600;
+            font-size: clamp(0.9rem, 1.6vw, 1.3rem);
+            color: #0b2b4a;
+        }
+        .matrix-header .sub {
+            font-size: clamp(0.6rem, 1vw, 0.85rem);
+            color: #4a5f73;
+        }
+        .matrix-header .actions {
+            display: flex;
+            gap: 0.5vw;
+        }
         .matrix-scores {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 0.4vh 0.6vw;
             overflow-y: auto;
-            max-height: 200px;
-            padding: 6px 4px;
+            max-height: 25vh;
+            padding: 0.5vh 0.4vw;
             background: #f8faff;
             border-radius: 12px;
             border: 1px solid #e2eaf2;
@@ -202,12 +229,12 @@
         .score-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 0.3vw;
             background: white;
-            padding: 4px 10px 4px 8px;
+            padding: 0.2vh 0.6vw 0.2vh 0.4vw;
             border-radius: 20px;
             border: 1px solid #dce5f2;
-            font-size: 12px;
+            font-size: clamp(0.55rem, 0.8vw, 0.75rem);
             flex: 0 0 auto;
             max-width: 100%;
         }
@@ -215,11 +242,11 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 150px;
+            max-width: 20vw;
         }
         .score-item select {
-            font-size: 11px;
-            padding: 2px 4px;
+            font-size: clamp(0.5rem, 0.7vw, 0.7rem);
+            padding: 0.1vh 0.2vw;
             border-radius: 12px;
             border: 1px solid #b0c8dd;
             background: white;
@@ -229,13 +256,13 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
-            gap: 8px;
+            gap: 0.8vh 0.8vw;
             min-height: 0;
         }
         .quadrant {
             background: #f8faff;
             border-radius: 12px;
-            padding: 8px 10px;
+            padding: 0.5vh 0.6vw;
             border: 1px solid #dce5f2;
             display: flex;
             flex-direction: column;
@@ -243,25 +270,27 @@
         }
         .quadrant-label {
             font-weight: 600;
-            font-size: 12px;
+            font-size: clamp(0.55rem, 0.8vw, 0.75rem);
             color: #1a3a5e;
-            margin-bottom: 4px;
+            margin-bottom: 0.2vh;
             flex-shrink: 0;
+            line-height: 1.2;
         }
         .quadrant-list {
             flex: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 0.2vh;
         }
         .quadrant-item {
             background: white;
-            padding: 4px 8px;
+            padding: 0.2vh 0.4vw;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: clamp(0.5rem, 0.7vw, 0.7rem);
             border-left: 3px solid #b0c8dd;
             word-break: break-word;
+            line-height: 1.2;
         }
         .quadrant-high-high {
             border-color: #28a745;
@@ -277,43 +306,44 @@
             background: #28a745;
             color: white;
             border-radius: 30px;
-            padding: 0 10px;
-            font-size: 11px;
-            line-height: 20px;
+            padding: 0 0.6vw;
+            font-size: clamp(0.5rem, 0.7vw, 0.7rem);
+            line-height: 1.8;
             display: inline-block;
-            margin-left: 6px;
+            margin-left: 0.4vw;
         }
         .matrix-actions {
             display: flex;
-            gap: 12px;
+            gap: 0.8vw;
             flex-wrap: wrap;
             flex-shrink: 0;
-            padding-top: 8px;
+            padding-top: 0.6vh;
             border-top: 1px solid #e9eef4;
-            margin-top: 4px;
+            margin-top: 0.4vh;
         }
         .actions {
             display: flex;
-            gap: 12px;
+            gap: 0.8vw;
             flex-wrap: wrap;
             align-items: center;
             flex-shrink: 0;
-            padding-top: 8px;
+            padding-top: 0.6vh;
             border-top: 1px solid #e9eef4;
         }
         .btn {
             background: #eef3fa;
             border: none;
-            padding: 8px 20px;
+            padding: 0.4vh 1.2vw;
             border-radius: 30px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: clamp(0.6rem, 0.9vw, 0.85rem);
             color: #1a3a5e;
             cursor: pointer;
             transition: 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 0.4vw;
+            white-space: nowrap;
         }
         .btn-primary {
             background: #1a5bbf;
@@ -369,16 +399,17 @@
             text-align: center;
         }
         .no-data .icon {
-            font-size: 48px;
-            margin-bottom: 12px;
+            font-size: clamp(2rem, 6vw, 4rem);
+            margin-bottom: 1vh;
         }
         .no-data p {
-            font-size: 15px;
-            max-width: 350px;
+            font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+            max-width: 80%;
         }
         .hidden {
             display: none !important;
         }
+
         /* Цветовые акценты колонок */
         .column-quick .column-header {
             border-bottom-color: #28a745;
@@ -405,7 +436,7 @@
             color: #721c24;
         }
 
-        /* Overlay для приоритетной карточки */
+        /* Приоритетный оверлей */
         .priority-overlay {
             position: absolute;
             top: 0;
@@ -418,8 +449,8 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 24px;
+            padding: 5%;
         }
         .priority-overlay.active {
             display: flex;
@@ -428,7 +459,7 @@
             background: #d4edda;
             border: 4px solid #28a745;
             border-radius: 24px;
-            padding: 30px 35px;
+            padding: 3vh 3vw;
             max-width: 90%;
             max-height: 80%;
             overflow-y: auto;
@@ -441,13 +472,13 @@
             100% { box-shadow: 0 0 50px rgba(40, 167, 69, 0.7); }
         }
         .priority-card h2 {
-            font-size: 28px;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
             font-weight: 700;
             color: #155724;
-            margin-bottom: 16px;
+            margin-bottom: 1.5vh;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 0.8vw;
         }
         .priority-card .priority-list {
             list-style: none;
@@ -455,9 +486,9 @@
             margin: 0;
         }
         .priority-card .priority-list li {
-            font-size: 20px;
-            line-height: 1.6;
-            padding: 8px 0 8px 30px;
+            font-size: clamp(1rem, 2vw, 1.6rem);
+            line-height: 1.5;
+            padding: 0.5vh 0 0.5vh 2vw;
             position: relative;
             color: #1e3a2a;
             border-bottom: 1px solid rgba(40, 167, 69, 0.2);
@@ -469,16 +500,16 @@
             content: "⭐";
             position: absolute;
             left: 0;
-            top: 8px;
-            font-size: 20px;
+            top: 0.5vh;
+            font-size: clamp(1rem, 2vw, 1.6rem);
         }
         .priority-card .close-btn {
             position: absolute;
-            top: 12px;
-            right: 18px;
+            top: 0.5vh;
+            right: 0.8vw;
             background: none;
             border: none;
-            font-size: 32px;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
             color: #155724;
             cursor: pointer;
             opacity: 0.7;
@@ -489,51 +520,77 @@
             transform: scale(1.1);
         }
         .priority-card .empty-message {
-            font-size: 18px;
+            font-size: clamp(1rem, 1.8vw, 1.4rem);
             color: #155724;
-            padding: 20px 0;
+            padding: 2vh 0;
             text-align: center;
         }
-        @media (max-width: 720px) {
+
+        /* Адаптация для очень маленьких экранов */
+        @media (max-width: 640px) {
+            body {
+                padding: 1vh 1vw;
+            }
             .container {
-                width: 100%;
-                height: 500px;
+                width: 100vw;
+                height: 100vh;
+                max-width: 100%;
+                max-height: 100%;
                 border-radius: 0;
-                padding: 12px;
+                padding: 1.5vh 2vw;
             }
             .board {
-                gap: 8px;
                 flex-direction: column;
+                gap: 1vh;
             }
             .column {
                 flex: none;
-                height: 120px;
-            }
-            .card-list {
-                flex: 1;
+                height: 25vh;
+                min-height: 120px;
             }
             .backlog {
-                max-height: 100px;
-            }
-            .matrix-scores {
-                max-height: 120px;
+                max-height: 15vh;
             }
             .matrix-grid {
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: 1fr 1fr;
             }
+            .matrix-scores {
+                max-height: 20vh;
+            }
+            .score-item .task-name {
+                max-width: 30vw;
+            }
             .priority-card {
-                padding: 20px;
+                padding: 2vh 4vw;
             }
             .priority-card h2 {
-                font-size: 22px;
+                font-size: 1.4rem;
             }
             .priority-card .priority-list li {
-                font-size: 16px;
-                padding-left: 24px;
+                font-size: 1rem;
+                padding-left: 6vw;
             }
             .priority-card .priority-list li::before {
-                font-size: 16px;
+                font-size: 1rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .matrix-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+            .matrix-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.3vh;
+            }
+            .matrix-header .actions {
+                justify-content: flex-start;
+            }
+            .btn {
+                padding: 0.2vh 2vw;
+                font-size: 0.7rem;
             }
         }
     </style>
@@ -583,9 +640,14 @@
 
     <!-- Панель матрицы -->
     <div id="matrixPanel" class="matrix-panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-            <span style="font-weight:600; font-size:16px; color:#0b2b4a;">📊 Матрица приоритетов</span>
-            <span style="font-size:13px; color:#4a5f73;">Оцените боль и выгоду для каждой задачи</span>
+        <div class="matrix-header">
+            <div>
+                <span class="title">📊 Матрица приоритетов</span>
+                <span class="sub" style="margin-left: 0.8vw;">Оцените боль и выгоду</span>
+            </div>
+            <div class="actions">
+                <button class="btn btn-priority" id="showPriorityInMatrix">🎯 Показать приоритет</button>
+            </div>
         </div>
         <div id="matrixScores" class="matrix-scores"></div>
         <div id="matrixGrid" class="matrix-grid">
@@ -619,7 +681,7 @@
     <div id="noDataMessage" class="no-data">
         <div class="icon">📭</div>
         <p><strong>Нет выбранных задач.</strong><br>Сначала вернитесь к <strong>перечню задач</strong> и отметьте те, которые хотите автоматизировать.</p>
-        <button class="btn btn-primary" onclick="window.location.href='perechen_zadazPB.html'" style="margin-top:16px;">
+        <button class="btn btn-primary" onclick="window.location.href='perechen_zadazPB.html'" style="margin-top:1.5vh;">
             ← Вернуться к выбору задач
         </button>
     </div>
@@ -629,11 +691,10 @@
         <button class="btn btn-secondary" id="resetBtn">🔄 Сбросить всё</button>
         <button class="btn btn-secondary" id="copyBtn">📋 Копировать ранжирование</button>
         <button class="btn btn-matrix" id="showMatrixBtn">📊 Матрица выгод</button>
-        <button class="btn btn-priority" id="showPriorityBtn">🎯 Показать приоритет</button>
         <button class="btn btn-secondary" onclick="window.location.href='perechen_zadazPB.html'">← Вернуться</button>
     </div>
 
-    <!-- Overlay для карточки приоритета -->
+    <!-- Overlay для приоритетной карточки -->
     <div id="priorityOverlay" class="priority-overlay">
         <div class="priority-card" id="priorityCard">
             <button class="close-btn" id="closePriorityBtn">&times;</button>
@@ -673,7 +734,7 @@
         const showMatrixBtn = document.getElementById('showMatrixBtn');
         const backToBoardBtn = document.getElementById('backToBoardBtn');
         const copyMatrixBtn = document.getElementById('copyMatrixBtn');
-        const showPriorityBtn = document.getElementById('showPriorityBtn');
+        const showPriorityInMatrix = document.getElementById('showPriorityInMatrix');
         const priorityOverlay = document.getElementById('priorityOverlay');
         const closePriorityBtn = document.getElementById('closePriorityBtn');
         const priorityContent = document.getElementById('priorityContent');
@@ -681,9 +742,8 @@
         // Состояние
         let allTasks = [];
         let currentRanking = { quick: [], strategic: [], hopeless: [], backlog: [] };
-        let taskScores = {}; // key: task text, value: { pain: 'low'|'medium'|'high', benefit: 'low'|'medium'|'high' }
+        let taskScores = {};
 
-        // --- Загрузка/сохранение оценок ---
         function loadScores() {
             const data = localStorage.getItem(SCORES_KEY);
             if (data) {
@@ -697,12 +757,10 @@
             }
             taskScores = {};
         }
-
         function saveScores() {
             localStorage.setItem(SCORES_KEY, JSON.stringify(taskScores));
         }
 
-        // --- Загрузка данных ---
         function loadSelectedTasks() {
             const data = localStorage.getItem(SELECTED_KEY);
             if (!data) return null;
@@ -732,14 +790,12 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(currentRanking));
         }
 
-        // --- Отрисовка доски ---
         function renderBoard() {
             listQuick.innerHTML = '';
             listStrategic.innerHTML = '';
             listHopeless.innerHTML = '';
             backlogEl.innerHTML = '';
 
-            // заголовок бэклога
             const label = document.createElement('div');
             label.className = 'backlog-label';
             label.innerHTML = `<span>📋 Не распределены</span><span class="count" id="backlogCount">${currentRanking.backlog.length}</span>`;
@@ -762,7 +818,6 @@
                 emptyMsg.textContent = 'Все задачи распределены';
                 backlogEl.appendChild(emptyMsg);
             }
-
             saveRanking();
         }
 
@@ -772,15 +827,12 @@
             card.draggable = true;
             card.textContent = taskText;
             card.dataset.category = category;
-
             card.addEventListener('dragstart', handleDragStart);
             card.addEventListener('dragend', handleDragEnd);
-
             container.appendChild(card);
             return card;
         }
 
-        // --- Drag & Drop ---
         let draggedCard = null;
         let sourceContainer = null;
 
@@ -791,7 +843,6 @@
             e.dataTransfer.setData('text/plain', this.textContent);
             e.dataTransfer.effectAllowed = 'move';
         }
-
         function handleDragEnd(e) {
             this.classList.remove('dragging');
         }
@@ -862,14 +913,11 @@
             currentRanking.backlog = Array.from(backlogCards).map(c => c.textContent);
         }
 
-        // --- Матрица ---
         function renderMatrix() {
-            // Собираем все задачи из всех категорий
             const allTasksSet = new Set();
             Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
             const uniqueTasks = Array.from(allTasksSet);
 
-            // Создаём элементы управления для каждой задачи
             matrixScores.innerHTML = '';
             uniqueTasks.forEach(task => {
                 const div = document.createElement('div');
@@ -879,7 +927,6 @@
                 nameSpan.textContent = task;
                 div.appendChild(nameSpan);
 
-                // Селектор боли
                 const painSelect = document.createElement('select');
                 painSelect.innerHTML = `
                     <option value="low">Боль: Низкая</option>
@@ -890,7 +937,6 @@
                 painSelect.value = current.pain || 'medium';
                 div.appendChild(painSelect);
 
-                // Селектор выгоды
                 const benefitSelect = document.createElement('select');
                 benefitSelect.innerHTML = `
                     <option value="low">Выгода: Низкая</option>
@@ -900,7 +946,6 @@
                 benefitSelect.value = current.benefit || 'medium';
                 div.appendChild(benefitSelect);
 
-                // Обновление при изменении
                 const update = () => {
                     const pain = painSelect.value;
                     const benefit = benefitSelect.value;
@@ -914,19 +959,14 @@
                 matrixScores.appendChild(div);
             });
 
-            // Если задач нет, показываем сообщение
             if (uniqueTasks.length === 0) {
                 matrixScores.innerHTML = '<div class="empty-message" style="width:100%;">Нет задач для оценки</div>';
             }
-
             updateMatrixGrid();
         }
 
         function updateMatrixGrid() {
-            // Очищаем квадранты
             document.querySelectorAll('.quadrant-list').forEach(el => el.innerHTML = '');
-
-            // Для каждой задачи определяем квадрант
             const allTasksSet = new Set();
             Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
             const uniqueTasks = Array.from(allTasksSet);
@@ -950,21 +990,18 @@
                 }
             });
 
-            // Добавляем сообщения о пустоте
             document.querySelectorAll('.quadrant-list').forEach(list => {
                 if (list.children.length === 0) {
                     const empty = document.createElement('div');
                     empty.className = 'empty-message';
                     empty.textContent = '—';
-                    empty.style.padding = '4px 0';
+                    empty.style.padding = '0.2vh 0';
                     list.appendChild(empty);
                 }
             });
         }
 
-        // --- Показать приоритет ---
         function showPriority() {
-            // Проверяем, есть ли задачи
             const allTasksSet = new Set();
             Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
             const tasks = Array.from(allTasksSet);
@@ -972,8 +1009,6 @@
                 alert('Нет задач. Сначала выберите задачи в чек-листе.');
                 return;
             }
-
-            // Проверяем, есть ли оценки
             let hasScores = false;
             for (const task of tasks) {
                 if (taskScores[task]) { hasScores = true; break; }
@@ -983,7 +1018,6 @@
                 return;
             }
 
-            // Собираем задачи из квадранта high-high
             const priorityTasks = [];
             for (const task of tasks) {
                 const score = taskScores[task];
@@ -992,7 +1026,6 @@
                 }
             }
 
-            // Формируем содержимое карточки
             priorityContent.innerHTML = '';
             if (priorityTasks.length === 0) {
                 priorityContent.innerHTML = '<div class="empty-message">😊 Нет задач с высокой болью и высокой выгодой. Пересмотрите оценки или вы уже всё автоматизировали!</div>';
@@ -1006,8 +1039,6 @@
                 });
                 priorityContent.appendChild(list);
             }
-
-            // Показываем overlay
             priorityOverlay.classList.add('active');
         }
 
@@ -1015,7 +1046,6 @@
             priorityOverlay.classList.remove('active');
         }
 
-        // --- Инициализация ---
         function init() {
             const tasks = loadSelectedTasks();
             if (!tasks || tasks.length === 0) {
@@ -1054,7 +1084,6 @@
             renderBoard();
             setupDropZones();
 
-            // Удаляем оценки для задач, которых уже нет
             const currentTasks = new Set(tasks);
             Object.keys(taskScores).forEach(key => {
                 if (!currentTasks.has(key)) delete taskScores[key];
@@ -1062,14 +1091,12 @@
             saveScores();
         }
 
-        // --- Сброс ---
         function resetRanking() {
             if (!allTasks.length) return;
             if (!confirm('Вернуть все задачи в верхний список (не распределены)?')) return;
             currentRanking = { quick: [], strategic: [], hopeless: [], backlog: [...allTasks] };
             renderBoard();
             saveRanking();
-            // Также очищаем оценки?
             if (confirm('Очистить также оценки боли/выгоды?')) {
                 taskScores = {};
                 saveScores();
@@ -1077,7 +1104,6 @@
             }
         }
 
-        // --- Копирование ранжирования ---
         function copyRanking() {
             const quick = currentRanking.quick;
             const strategic = currentRanking.strategic;
@@ -1110,7 +1136,6 @@
             });
         }
 
-        // --- Копирование матрицы ---
         function copyMatrix() {
             const allTasksSet = new Set();
             Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
@@ -1160,7 +1185,6 @@
             });
         }
 
-        // --- Переключение между доской и матрицей ---
         function showMatrix() {
             const allTasksSet = new Set();
             Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
@@ -1181,19 +1205,17 @@
             renderBoard();
         }
 
-        // --- События ---
         resetBtn.addEventListener('click', resetRanking);
         copyBtn.addEventListener('click', copyRanking);
         showMatrixBtn.addEventListener('click', showMatrix);
         backToBoardBtn.addEventListener('click', hideMatrix);
         copyMatrixBtn.addEventListener('click', copyMatrix);
-        showPriorityBtn.addEventListener('click', showPriority);
+        showPriorityInMatrix.addEventListener('click', showPriority);
         closePriorityBtn.addEventListener('click', hidePriority);
         priorityOverlay.addEventListener('click', function(e) {
             if (e.target === this) hidePriority();
         });
 
-        // --- Запуск ---
         init();
     })();
 </script>

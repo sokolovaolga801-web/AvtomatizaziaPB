@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Перечень задач по промбезопасности</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 700px;
+            height: 650px;
+            overflow-y: auto;
+            background: white;
+            padding: 20px 24px;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .container::-webkit-scrollbar-track {
+            background: #eef3f8;
+            border-radius: 10px;
+        }
+        .container::-webkit-scrollbar-thumb {
+            background: #b0c8dd;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0b2b4a;
+            margin-bottom: 2px;
+            flex-shrink: 0;
+        }
+        .subhead {
+            color: #4a5f73;
+            font-size: 13px;
+            margin-bottom: 14px;
+            border-left: 3px solid #2b7be4;
+            padding-left: 12px;
+            background: #f0f5fe;
+            border-radius: 0 6px 6px 0;
+            line-height: 1.4;
+            flex-shrink: 0;
+        }
+        #checklist {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        #checklist::-webkit-scrollbar {
+            width: 4px;
+        }
+        #checklist::-webkit-scrollbar-thumb {
+            background: #c0d0e0;
+            border-radius: 10px;
+        }
+
+        .group {
+            margin-bottom: 14px;
+            border-bottom: 1px solid #e9eef4;
+            padding-bottom: 10px;
+        }
+        .group:last-of-type {
+            border-bottom: none;
+            margin-bottom: 6px;
+        }
+        .group-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1a3a5e;
+            margin-bottom: 6px;
+        }
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 3px 0 3px 4px;
+            border-radius: 6px;
+            transition: background 0.1s;
+            cursor: pointer;
+        }
+        .task-item:hover {
+            background: #f2f6fd;
+        }
+        .task-item input[type="checkbox"] {
+            margin-top: 3px;
+            width: 16px;
+            height: 16px;
+            accent-color: #2b7be4;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .task-item label {
+            font-size: 13px;
+            color: #1f3a57;
+            line-height: 1.4;
+            cursor: pointer;
+            user-select: none;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin: 10px 0 6px;
+            flex-shrink: 0;
+        }
+        .btn {
+            background: #eef3fa;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #1a3a5e;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary {
+            background: #1a5bbf;
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 91, 191, 0.2);
+        }
+        .btn-primary:hover {
+            background: #124a9e;
+        }
+        .btn-secondary {
+            background: #e9eef4;
+            color: #1f3a57;
+        }
+        .btn-secondary:hover {
+            background: #d5dfec;
+        }
+        .btn-success {
+            background: #1e8b4c;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #15733e;
+        }
+        .badge {
+            background: #dce5f2;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1a3a5e;
+            margin-left: auto;
+        }
+        .result-area {
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 2px dashed #cbd8e8;
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+        .result-area.active {
+            display: flex;
+        }
+        .result-area h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0b2b4a;
+            margin-bottom: 6px;
+            flex-shrink: 0;
+        }
+        .result-area p {
+            font-size: 13px;
+            color: #4a5f73;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+        .result-list {
+            background: #f8faff;
+            border-radius: 12px;
+            padding: 10px 16px;
+            list-style: none;
+            counter-reset: task-counter;
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 8px;
+        }
+        .result-list li {
+            counter-increment: task-counter;
+            padding: 4px 0 4px 36px;
+            position: relative;
+            border-bottom: 1px solid #e9eff6;
+            font-size: 13px;
+            color: #1d344b;
+            line-height: 1.4;
+        }
+        .result-list li:last-child {
+            border-bottom: none;
+        }
+        .result-list li::before {
+            content: counter(task-counter);
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 26px;
+            height: 26px;
+            background: #dce5f2;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+            color: #1a3a5e;
+        }
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .hidden {
+            display: none !important;
+        }
+        @media (max-width: 720px) {
+            .container {
+                width: 100%;
+                height: 450px;
+                border-radius: 0;
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <h1>📋 Перечень рабочих задач специалиста по промбезопасности</h1>
+    <div class="subhead">
+        Отметьте задачи, которые занимают много времени и требуют автоматизации.
+    </div>
+
+    <div id="checklist">
+        <!-- Группа 1 -->
+        <div class="group">
+            <div class="group-title">🔍 Контрольно-надзорная деятельность</div>
+            <div class="task-item"><input type="checkbox" id="t1" value="Проведение комплексных и целевых проверок" /><label for="t1">Проведение комплексных и целевых проверок</label></div>
+            <div class="task-item"><input type="checkbox" id="t2" value="Планирование и координация проведения проверок" /><label for="t2">Планирование и координация проведения проверок</label></div>
+            <div class="task-item"><input type="checkbox" id="t3" value="Организация и подготовка к диагностированию оборудования" /><label for="t3">Организация и подготовка к диагностированию оборудования</label></div>
+            <div class="task-item"><input type="checkbox" id="t4" value="Контроль замеров параметров воздушной среды" /><label for="t4">Контроль замеров параметров воздушной среды</label></div>
+            <div class="task-item"><input type="checkbox" id="t5" value="Контроль применения СИЗ" /><label for="t5">Контроль применения СИЗ</label></div>
+            <div class="task-item"><input type="checkbox" id="t6" value="Выявление опасных факторов на производстве" /><label for="t6">Выявление опасных факторов на производстве</label></div>
+        </div>
+
+        <!-- Группа 2 -->
+        <div class="group">
+            <div class="group-title">⚠️ Управление рисками и аварийная готовность</div>
+            <div class="task-item"><input type="checkbox" id="t7" value="Анализ документации, оценка состояния и остаточного ресурса" /><label for="t7">Анализ документации, оценка состояния и остаточного ресурса</label></div>
+            <div class="task-item"><input type="checkbox" id="t8" value="Разработка планов мероприятий по локализации и ликвидации аварий" /><label for="t8">Разработка планов мероприятий по локализации и ликвидации аварий</label></div>
+            <div class="task-item"><input type="checkbox" id="t9" value="Контроль готовности к аварийным ситуациям" /><label for="t9">Контроль готовности к аварийным ситуациям</label></div>
+            <div class="task-item"><input type="checkbox" id="t10" value="Подготовка персонала к действиям в аварийных ситуациях (тренировки, учения)" /><label for="t10">Подготовка персонала к действиям в аварийных ситуациях (тренировки, учения)</label></div>
+            <div class="task-item"><input type="checkbox" id="t11" value="Участие в расследовании аварий" /><label for="t11">Участие в расследовании аварий</label></div>
+            <div class="task-item"><input type="checkbox" id="t12" value="Анализ, регистрация и учёт причин аварий и инцидентов" /><label for="t12">Анализ, регистрация и учёт причин аварий и инцидентов</label></div>
+        </div>
+
+        <!-- Группа 3 -->
+        <div class="group">
+            <div class="group-title">📄 Документационное и разрешительное обеспечение</div>
+            <div class="task-item"><input type="checkbox" id="t13" value="Ведение документации по производственному контролю" /><label for="t13">Ведение документации по производственному контролю</label></div>
+            <div class="task-item"><input type="checkbox" id="t14" value="Разработка документации, регистрация ОПО, подготовка документов в госорганы" /><label for="t14">Разработка документации, регистрация ОПО, подготовка документов в госорганы</label></div>
+            <div class="task-item"><input type="checkbox" id="t15" value="Ведение учёта выданных предписаний" /><label for="t15">Ведение учёта выданных предписаний</label></div>
+            <div class="task-item"><input type="checkbox" id="t16" value="Обеспечение выполнения приказов и предписаний контролирующих органов" /><label for="t16">Обеспечение выполнения приказов и предписаний контролирующих органов</label></div>
+            <div class="task-item"><input type="checkbox" id="t17" value="Разработка планов работы и мероприятий по ПБ" /><label for="t17">Разработка планов работы и мероприятий по ПБ</label></div>
+        </div>
+
+        <!-- Группа 4 -->
+        <div class="group">
+            <div class="group-title">📊 Аналитика, отчётность и финансирование</div>
+            <div class="task-item"><input type="checkbox" id="t18" value="Анализ состояния промбезопасности, разработка корректирующих мер" /><label for="t18">Анализ состояния промбезопасности, разработка корректирующих мер</label></div>
+            <div class="task-item"><input type="checkbox" id="t19" value="Оценка достаточности принятых мер" /><label for="t19">Оценка достаточности принятых мер</label></div>
+            <div class="task-item"><input type="checkbox" id="t20" value="Подготовка отчётов для руководства и надзорных органов" /><label for="t20">Подготовка отчётов для руководства и надзорных органов</label></div>
+            <div class="task-item"><input type="checkbox" id="t21" value="Анализ достаточности финансового обеспечения мероприятий по промышленной безопасности" /><label for="t21">Анализ достаточности финансового обеспечения мероприятий по ПБ</label></div>
+        </div>
+
+        <!-- Группа 5 -->
+        <div class="group">
+            <div class="group-title">🧑‍🏫 Обучение и аттестация</div>
+            <div class="task-item"><input type="checkbox" id="t22" value="Организация и контроль аттестации работников" /><label for="t22">Организация и контроль аттестации работников</label></div>
+            <div class="task-item"><input type="checkbox" id="t23" value="Разработка программ обучения и инструктажей" /><label for="t23">Разработка программ обучения и инструктажей</label></div>
+            <div class="task-item"><input type="checkbox" id="t24" value="Проведение инструктажей с персоналом всех уровней" /><label for="t24">Проведение инструктажей с персоналом всех уровней</label></div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn btn-primary" id="generateBtn">✅ Сформировать перечень</button>
+        <button class="btn btn-secondary" id="resetBtn">🔄 Сбросить</button>
+        <span class="badge" id="counter">Выбрано: 0</span>
+    </div>
+
+    <div class="result-area" id="resultArea">
+        <h2>📌 Ваш перечень</h2>
+        <p>Выбрано <strong id="selectedCount">0</strong> задач.</p>
+        <ol class="result-list" id="resultList"></ol>
+        <div class="result-actions">
+            <button class="btn btn-secondary" id="backBtn">✏️ Редактировать</button>
+            <button class="btn btn-success" id="copyBtn">📋 Копировать</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const checklist = document.getElementById('checklist');
+        const generateBtn = document.getElementById('generateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const resultArea = document.getElementById('resultArea');
+        const resultList = document.getElementById('resultList');
+        const selectedCountSpan = document.getElementById('selectedCount');
+        const counterSpan = document.getElementById('counter');
+        const backBtn = document.getElementById('backBtn');
+        const copyBtn = document.getElementById('copyBtn');
+
+        const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+
+        function updateCounter() {
+            const checked = document.querySelectorAll('#checklist input[type="checkbox"]:checked');
+            counterSpan.textContent = `Выбрано: ${checked.length}`;
+        }
+
+        function resetSelection() {
+            checkboxes.forEach(cb => cb.checked = false);
+            updateCounter();
+            resultArea.classList.remove('active');
+            checklist.classList.remove('hidden');
+            localStorage.removeItem('selectedTasks');
+        }
+
+        function getSelectedValues() {
+            const checked = document.querySelectorAll('#checklist input[type="checkbox"]:checked');
+            return Array.from(checked).map(cb => cb.value);
+        }
+
+        function showResult() {
+            const selected = getSelectedValues();
+            if (selected.length === 0) {
+                alert('Выберите хотя бы одну задачу.');
+                return;
+            }
+            checklist.classList.add('hidden');
+            resultArea.classList.add('active');
+            resultList.innerHTML = '';
+            selected.forEach(task => {
+                const li = document.createElement('li');
+                li.textContent = task;
+                resultList.appendChild(li);
+            });
+            selectedCountSpan.textContent = selected.length;
+            localStorage.setItem('selectedTasks', JSON.stringify(selected));
+        }
+
+        function goBack() {
+            checklist.classList.remove('hidden');
+            resultArea.classList.remove('active');
+        }
+
+        function copyList() {
+            const items = resultList.querySelectorAll('li');
+            if (!items.length) return;
+            const text = Array.from(items).map(li => li.textContent).join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Список скопирован!');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Список скопирован!');
+            });
+        }
+
+        generateBtn.addEventListener('click', showResult);
+        resetBtn.addEventListener('click', resetSelection);
+        backBtn.addEventListener('click', goBack);
+        copyBtn.addEventListener('click', copyList);
+        checkboxes.forEach(cb => cb.addEventListener('change', updateCounter));
+        updateCounter();
+    })();
+</script>
+</body>
+</html>

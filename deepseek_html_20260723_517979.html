@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ранжирование задач по автоматизации</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            width: 700px;
+            height: 650px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            padding: 18px 22px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+        h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0b2b4a;
+            margin-bottom: 3px;
+            flex-shrink: 0;
+        }
+        .subhead {
+            color: #4a5f73;
+            font-size: 13px;
+            margin-bottom: 10px;
+            border-left: 3px solid #2b7be4;
+            padding-left: 12px;
+            background: #f0f5fe;
+            border-radius: 0 6px 6px 0;
+            line-height: 1.3;
+            flex-shrink: 0;
+        }
+        /* Бэклог */
+        .backlog {
+            background: #f8faff;
+            border: 2px dashed #b0c8dd;
+            border-radius: 12px;
+            padding: 6px 10px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+            max-height: 110px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 5px;
+            transition: background 0.2s;
+        }
+        .backlog.drag-over {
+            background: #eaf0fa;
+            border-color: #2b7be4;
+        }
+        .backlog-label {
+            width: 100%;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a3a5e;
+            margin-bottom: 3px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .backlog-label .count {
+            font-weight: 400;
+            color: #5d738b;
+        }
+        .backlog .card {
+            display: inline-block;
+            margin: 0;
+            cursor: grab;
+            flex: 0 0 auto;
+        }
+        /* Доска с колонками — всегда ряд из трёх вертикальных колонок */
+        .board {
+            display: flex;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+            margin-bottom: 8px;
+        }
+        .column {
+            flex: 1;
+            background: #f8faff;
+            border-radius: 12px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e2eaf2;
+            min-width: 0;
+            overflow: hidden;
+        }
+        .column-header {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a3a5e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #dce5f2;
+            flex-shrink: 0;
+        }
+        .column-header .count {
+            background: #dce5f2;
+            border-radius: 30px;
+            padding: 0 10px;
+            font-size: 12px;
+            line-height: 22px;
+            font-weight: 500;
+        }
+        .column-desc {
+            font-size: 11px;
+            color: #5d738b;
+            margin: 3px 0 6px;
+            line-height: 1.2;
+            flex-shrink: 0;
+        }
+        .card-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 3px 0;
+            min-height: 20px;
+        }
+        .card-list.drag-over {
+            background: #eaf0fa;
+            border-radius: 6px;
+        }
+        .card {
+            background: white;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #1f3a57;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            border: 1px solid #e2eaf2;
+            cursor: grab;
+            transition: 0.15s;
+            word-break: break-word;
+            line-height: 1.3;
+            user-select: none;
+        }
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-color: #b0c8dd;
+        }
+        .card:active {
+            cursor: grabbing;
+        }
+        .card.dragging {
+            opacity: 0.4;
+            transform: scale(0.97);
+        }
+        .empty-message {
+            color: #a0b8d0;
+            font-size: 12px;
+            text-align: center;
+            padding: 15px 0;
+            font-style: italic;
+        }
+        /* Панель матрицы */
+        .matrix-panel {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            gap: 8px;
+        }
+        .matrix-panel.active {
+            display: flex;
+        }
+        .matrix-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .matrix-header .title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #0b2b4a;
+        }
+        .matrix-header .sub {
+            font-size: 12px;
+            color: #4a5f73;
+        }
+        .matrix-header .actions {
+            display: flex;
+            gap: 5px;
+        }
+        .matrix-scores {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 8px;
+            overflow-y: auto;
+            max-height: 140px;
+            padding: 5px 6px;
+            background: #f8faff;
+            border-radius: 10px;
+            border: 1px solid #e2eaf2;
+            flex-shrink: 0;
+        }
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: white;
+            padding: 3px 10px 3px 6px;
+            border-radius: 16px;
+            border: 1px solid #dce5f2;
+            font-size: 12px;
+            flex: 0 0 auto;
+            max-width: 100%;
+        }
+        .score-item .task-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
+        }
+        .score-item select {
+            font-size: 11px;
+            padding: 1px 4px;
+            border-radius: 10px;
+            border: 1px solid #b0c8dd;
+            background: white;
+        }
+        .matrix-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 6px;
+            min-height: 0;
+        }
+        .quadrant {
+            background: #f8faff;
+            border-radius: 10px;
+            padding: 6px 8px;
+            border: 1px solid #dce5f2;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .quadrant-label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #1a3a5e;
+            margin-bottom: 3px;
+            flex-shrink: 0;
+            line-height: 1.2;
+        }
+        .quadrant-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .quadrant-item {
+            background: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            border-left: 3px solid #b0c8dd;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+        .quadrant-high-high {
+            border-color: #28a745;
+            background: #f0fff0;
+        }
+        .quadrant-high-high .quadrant-label {
+            color: #1e7e34;
+        }
+        .quadrant-high-high .quadrant-item {
+            border-left-color: #28a745;
+        }
+        .priority-badge {
+            background: #28a745;
+            color: white;
+            border-radius: 30px;
+            padding: 0 8px;
+            font-size: 11px;
+            line-height: 20px;
+            display: inline-block;
+            margin-left: 4px;
+        }
+        .matrix-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            padding-top: 6px;
+            border-top: 1px solid #e9eef4;
+            margin-top: 3px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            flex-shrink: 0;
+            padding-top: 6px;
+            border-top: 1px solid #e9eef4;
+        }
+        .btn {
+            background: #eef3fa;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 12px;
+            color: #1a3a5e;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: #1a5bbf;
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 91, 191, 0.2);
+        }
+        .btn-primary:hover {
+            background: #124a9e;
+        }
+        .btn-secondary {
+            background: #e9eef4;
+            color: #1f3a57;
+        }
+        .btn-secondary:hover {
+            background: #d5dfec;
+        }
+        .btn-success {
+            background: #1e8b4c;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #15733e;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b02a37;
+        }
+        .btn-matrix {
+            background: #6f42c1;
+            color: white;
+        }
+        .btn-matrix:hover {
+            background: #5a32a3;
+        }
+        .btn-priority {
+            background: #28a745;
+            color: white;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        .btn-priority:hover {
+            background: #1e7e34;
+        }
+        .no-data {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #4a5f73;
+            text-align: center;
+        }
+        .no-data .icon {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+        .no-data p {
+            font-size: 14px;
+            max-width: 80%;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* Цветовые акценты колонок */
+        .column-quick .column-header {
+            border-bottom-color: #28a745;
+            color: #1e7e34;
+        }
+        .column-quick .column-header .count {
+            background: #d4edda;
+            color: #155724;
+        }
+        .column-strategic .column-header {
+            border-bottom-color: #007bff;
+            color: #0056b3;
+        }
+        .column-strategic .column-header .count {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .column-hopeless .column-header {
+            border-bottom-color: #dc3545;
+            color: #a71d2a;
+        }
+        .column-hopeless .column-header .count {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Приоритетный оверлей */
+        .priority-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            border-radius: 24px;
+            padding: 20px;
+        }
+        .priority-overlay.active {
+            display: flex;
+        }
+        .priority-card {
+            background: #d4edda;
+            border: 4px solid #28a745;
+            border-radius: 20px;
+            padding: 25px 30px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(40, 167, 69, 0.4);
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+            position: relative;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(40, 167, 69, 0.3); }
+            100% { box-shadow: 0 0 50px rgba(40, 167, 69, 0.7); }
+        }
+        .priority-card h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #155724;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .priority-card .priority-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .priority-card .priority-list li {
+            font-size: 18px;
+            line-height: 1.4;
+            padding: 6px 0 6px 28px;
+            position: relative;
+            color: #1e3a2a;
+            border-bottom: 1px solid rgba(40, 167, 69, 0.2);
+        }
+        .priority-card .priority-list li:last-child {
+            border-bottom: none;
+        }
+        .priority-card .priority-list li::before {
+            content: "⭐";
+            position: absolute;
+            left: 0;
+            top: 6px;
+            font-size: 18px;
+        }
+        .priority-card .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #155724;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: 0.2s;
+        }
+        .priority-card .close-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .priority-card .empty-message {
+            font-size: 16px;
+            color: #155724;
+            padding: 15px 0;
+            text-align: center;
+        }
+
+        /* Адаптация: при сужении окна добавляем горизонтальную прокрутку */
+        @media (max-width: 720px) {
+            body {
+                padding: 10px;
+                justify-content: flex-start;
+                align-items: flex-start;
+            }
+            .container {
+                width: 100%;
+                height: auto;
+                max-height: 100vh;
+                border-radius: 16px;
+                padding: 14px;
+                overflow-x: auto;
+                flex-shrink: 1;
+            }
+            .board {
+                min-width: 560px;
+                gap: 10px;
+            }
+            .column {
+                min-width: 150px;
+            }
+            .backlog {
+                max-height: 100px;
+            }
+            .matrix-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            .board {
+                min-width: 460px;
+                gap: 8px;
+            }
+            .column {
+                min-width: 130px;
+            }
+            .matrix-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 3px;
+            }
+            .matrix-header .actions {
+                justify-content: flex-start;
+            }
+            .btn {
+                padding: 5px 12px;
+                font-size: 11px;
+            }
+            .priority-card {
+                padding: 16px;
+            }
+            .priority-card h2 {
+                font-size: 20px;
+            }
+            .priority-card .priority-list li {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <h1>📌 Ранжирование задач по автоматизации</h1>
+    <div class="subhead">
+        Перетащите карточки в нужные колонки. Затем оцените выгоду и боль в матрице.
+    </div>
+
+    <!-- Бэклог -->
+    <div id="backlog" class="backlog">
+        <div class="backlog-label">
+            <span>📋 Не распределены</span>
+            <span class="count" id="backlogCount">0</span>
+        </div>
+    </div>
+
+    <!-- Доска с колонками -->
+    <div id="boardContainer" class="board" style="display:none;">
+        <div class="column column-quick" data-column="quick">
+            <div class="column-header">
+                <span>🚀 Быстрые победы</span>
+                <span class="count" id="countQuick">0</span>
+            </div>
+            <div class="column-desc">Облачные сервисы / мобильные приложения, эффект за неделю</div>
+            <div class="card-list" id="listQuick"></div>
+        </div>
+        <div class="column column-strategic" data-column="strategic">
+            <div class="column-header">
+                <span>📊 Стратегические проекты</span>
+                <span class="count" id="countStrategic">0</span>
+            </div>
+            <div class="column-desc">Интеграция с АСУ ТП / 1С, предиктивная аналитика, снижение аварийности</div>
+            <div class="card-list" id="listStrategic"></div>
+        </div>
+        <div class="column column-hopeless" data-column="hopeless">
+            <div class="column-header">
+                <span>⛔ Безнадёжные</span>
+                <span class="count" id="countHopeless">0</span>
+            </div>
+            <div class="column-desc">Требуют смены технологии или регламента</div>
+            <div class="card-list" id="listHopeless"></div>
+        </div>
+    </div>
+
+    <!-- Панель матрицы -->
+    <div id="matrixPanel" class="matrix-panel">
+        <div class="matrix-header">
+            <div>
+                <span class="title">📊 Матрица приоритетов</span>
+                <span class="sub" style="margin-left: 8px;">Оцените боль и выгоду</span>
+            </div>
+            <div class="actions">
+                <button class="btn btn-priority" id="showPriorityInMatrix">🎯 Показать приоритет</button>
+            </div>
+        </div>
+        <div id="matrixScores" class="matrix-scores"></div>
+        <div id="matrixGrid" class="matrix-grid">
+            <div class="quadrant" data-quadrant="low-benefit-low-pain">
+                <div class="quadrant-label">⬇️ Низкая выгода <br> ⬇️ Низкая боль</div>
+                <div class="quadrant-list" id="quad-low-low"></div>
+            </div>
+            <div class="quadrant" data-quadrant="high-benefit-low-pain">
+                <div class="quadrant-label">⬆️ Высокая выгода <br> ⬇️ Низкая боль</div>
+                <div class="quadrant-list" id="quad-high-low"></div>
+            </div>
+            <div class="quadrant" data-quadrant="low-benefit-high-pain">
+                <div class="quadrant-label">⬇️ Низкая выгода <br> ⬆️ Высокая боль</div>
+                <div class="quadrant-list" id="quad-low-high"></div>
+            </div>
+            <div class="quadrant quadrant-high-high" data-quadrant="high-benefit-high-pain">
+                <div class="quadrant-label">
+                    ⬆️ Высокая выгода <br> ⬆️ Высокая боль
+                    <span class="priority-badge">ПРИОРИТЕТ</span>
+                </div>
+                <div class="quadrant-list" id="quad-high-high"></div>
+            </div>
+        </div>
+        <div class="matrix-actions">
+            <button class="btn btn-secondary" id="backToBoardBtn">← Назад к доске</button>
+            <button class="btn btn-success" id="copyMatrixBtn">📋 Копировать матрицу</button>
+        </div>
+    </div>
+
+    <!-- Сообщение, если нет данных -->
+    <div id="noDataMessage" class="no-data">
+        <div class="icon">📭</div>
+        <p><strong>Нет выбранных задач.</strong><br>Сначала вернитесь к <strong>перечню задач</strong> и отметьте те, которые хотите автоматизировать.</p>
+        <button class="btn btn-primary" onclick="window.location.href='perechen_zadazPB.html'" style="margin-top:12px;">
+            ← Вернуться к выбору задач
+        </button>
+    </div>
+
+    <!-- Кнопки действий (нижняя панель) -->
+    <div class="actions" id="actionButtons" style="display:none;">
+        <button class="btn btn-secondary" id="resetBtn">🔄 Сбросить всё</button>
+        <button class="btn btn-secondary" id="copyBtn">📋 Копировать ранжирование</button>
+        <button class="btn btn-matrix" id="showMatrixBtn">📊 Матрица выгод</button>
+        <button class="btn btn-secondary" onclick="window.location.href='perechen_zadazPB.html'">← Вернуться</button>
+    </div>
+
+    <!-- Overlay для приоритетной карточки -->
+    <div id="priorityOverlay" class="priority-overlay">
+        <div class="priority-card" id="priorityCard">
+            <button class="close-btn" id="closePriorityBtn">&times;</button>
+            <h2>🏆 Ваш главный приоритет</h2>
+            <div id="priorityContent">
+                <!-- Сюда будет вставлен список или сообщение -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const STORAGE_KEY = 'taskRanking';
+        const SELECTED_KEY = 'selectedTasks';
+        const SCORES_KEY = 'taskScores';
+
+        // DOM-элементы
+        const backlogEl = document.getElementById('backlog');
+        const boardContainer = document.getElementById('boardContainer');
+        const noDataMessage = document.getElementById('noDataMessage');
+        const actionButtons = document.getElementById('actionButtons');
+        const matrixPanel = document.getElementById('matrixPanel');
+        const matrixScores = document.getElementById('matrixScores');
+        const matrixGrid = document.getElementById('matrixGrid');
+
+        const listQuick = document.getElementById('listQuick');
+        const listStrategic = document.getElementById('listStrategic');
+        const listHopeless = document.getElementById('listHopeless');
+        const countQuick = document.getElementById('countQuick');
+        const countStrategic = document.getElementById('countStrategic');
+        const countHopeless = document.getElementById('countHopeless');
+        const backlogCount = document.getElementById('backlogCount');
+
+        const resetBtn = document.getElementById('resetBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const showMatrixBtn = document.getElementById('showMatrixBtn');
+        const backToBoardBtn = document.getElementById('backToBoardBtn');
+        const copyMatrixBtn = document.getElementById('copyMatrixBtn');
+        const showPriorityInMatrix = document.getElementById('showPriorityInMatrix');
+        const priorityOverlay = document.getElementById('priorityOverlay');
+        const closePriorityBtn = document.getElementById('closePriorityBtn');
+        const priorityContent = document.getElementById('priorityContent');
+
+        // Состояние
+        let allTasks = [];
+        let currentRanking = { quick: [], strategic: [], hopeless: [], backlog: [] };
+        let taskScores = {};
+
+        function loadScores() {
+            const data = localStorage.getItem(SCORES_KEY);
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+                    if (typeof parsed === 'object') {
+                        taskScores = parsed;
+                        return;
+                    }
+                } catch (e) {}
+            }
+            taskScores = {};
+        }
+        function saveScores() {
+            localStorage.setItem(SCORES_KEY, JSON.stringify(taskScores));
+        }
+
+        function loadSelectedTasks() {
+            const data = localStorage.getItem(SELECTED_KEY);
+            if (!data) return null;
+            try {
+                const parsed = JSON.parse(data);
+                return Array.isArray(parsed) ? parsed : null;
+            } catch { return null; }
+        }
+
+        function loadRanking() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (!data) return null;
+            try {
+                const parsed = JSON.parse(data);
+                if (parsed && typeof parsed === 'object' &&
+                    Array.isArray(parsed.quick) &&
+                    Array.isArray(parsed.strategic) &&
+                    Array.isArray(parsed.hopeless) &&
+                    Array.isArray(parsed.backlog)) {
+                    return parsed;
+                }
+                return null;
+            } catch { return null; }
+        }
+
+        function saveRanking() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentRanking));
+        }
+
+        function renderBoard() {
+            listQuick.innerHTML = '';
+            listStrategic.innerHTML = '';
+            listHopeless.innerHTML = '';
+            backlogEl.innerHTML = '';
+
+            const label = document.createElement('div');
+            label.className = 'backlog-label';
+            label.innerHTML = `<span>📋 Не распределены</span><span class="count" id="backlogCount">${currentRanking.backlog.length}</span>`;
+            backlogEl.appendChild(label);
+
+            currentRanking.backlog.forEach(task => addCardToContainer(backlogEl, task, 'backlog'));
+            currentRanking.quick.forEach(task => addCardToContainer(listQuick, task, 'quick'));
+            currentRanking.strategic.forEach(task => addCardToContainer(listStrategic, task, 'strategic'));
+            currentRanking.hopeless.forEach(task => addCardToContainer(listHopeless, task, 'hopeless'));
+
+            countQuick.textContent = currentRanking.quick.length;
+            countStrategic.textContent = currentRanking.strategic.length;
+            countHopeless.textContent = currentRanking.hopeless.length;
+            const bc = document.getElementById('backlogCount');
+            if (bc) bc.textContent = currentRanking.backlog.length;
+
+            if (currentRanking.backlog.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'empty-message';
+                emptyMsg.textContent = 'Все задачи распределены';
+                backlogEl.appendChild(emptyMsg);
+            }
+            saveRanking();
+        }
+
+        function addCardToContainer(container, taskText, category) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.draggable = true;
+            card.textContent = taskText;
+            card.dataset.category = category;
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+            container.appendChild(card);
+            return card;
+        }
+
+        let draggedCard = null;
+        let sourceContainer = null;
+
+        function handleDragStart(e) {
+            draggedCard = this;
+            sourceContainer = this.parentElement;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.textContent);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+        }
+
+        function setupDropZones() {
+            backlogEl.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                backlogEl.classList.add('drag-over');
+            });
+            backlogEl.addEventListener('dragleave', (e) => {
+                backlogEl.classList.remove('drag-over');
+            });
+            backlogEl.addEventListener('drop', (e) => {
+                e.preventDefault();
+                backlogEl.classList.remove('drag-over');
+                handleDrop(backlogEl, 'backlog');
+            });
+
+            document.querySelectorAll('.column').forEach(col => {
+                const list = col.querySelector('.card-list');
+                if (!list) return;
+                list.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    list.classList.add('drag-over');
+                });
+                list.addEventListener('dragleave', (e) => {
+                    list.classList.remove('drag-over');
+                });
+                list.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    list.classList.remove('drag-over');
+                    const columnType = col.dataset.column;
+                    handleDrop(list, columnType);
+                });
+            });
+        }
+
+        function handleDrop(targetContainer, targetCategory) {
+            if (!draggedCard) return;
+            const sourceParent = draggedCard.parentElement;
+            if (sourceParent === targetContainer) {
+                draggedCard = null;
+                sourceContainer = null;
+                return;
+            }
+            if (sourceParent && sourceParent.contains(draggedCard)) {
+                sourceParent.removeChild(draggedCard);
+            }
+            targetContainer.appendChild(draggedCard);
+            draggedCard.dataset.category = targetCategory;
+            updateRankingFromDOM();
+            draggedCard = null;
+            sourceContainer = null;
+            renderBoard();
+        }
+
+        function updateRankingFromDOM() {
+            const getTasks = (list) => {
+                const cards = list.querySelectorAll('.card');
+                return Array.from(cards).map(c => c.textContent);
+            };
+            currentRanking.quick = getTasks(listQuick);
+            currentRanking.strategic = getTasks(listStrategic);
+            currentRanking.hopeless = getTasks(listHopeless);
+            const backlogCards = backlogEl.querySelectorAll('.card');
+            currentRanking.backlog = Array.from(backlogCards).map(c => c.textContent);
+        }
+
+        function renderMatrix() {
+            const allTasksSet = new Set();
+            Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
+            const uniqueTasks = Array.from(allTasksSet);
+
+            matrixScores.innerHTML = '';
+            uniqueTasks.forEach(task => {
+                const div = document.createElement('div');
+                div.className = 'score-item';
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'task-name';
+                nameSpan.textContent = task;
+                div.appendChild(nameSpan);
+
+                const painSelect = document.createElement('select');
+                painSelect.innerHTML = `
+                    <option value="low">Боль: Низкая</option>
+                    <option value="medium">Боль: Средняя</option>
+                    <option value="high">Боль: Высокая</option>
+                `;
+                const current = taskScores[task] || { pain: 'medium', benefit: 'medium' };
+                painSelect.value = current.pain || 'medium';
+                div.appendChild(painSelect);
+
+                const benefitSelect = document.createElement('select');
+                benefitSelect.innerHTML = `
+                    <option value="low">Выгода: Низкая</option>
+                    <option value="medium">Выгода: Средняя</option>
+                    <option value="high">Выгода: Высокая</option>
+                `;
+                benefitSelect.value = current.benefit || 'medium';
+                div.appendChild(benefitSelect);
+
+                const update = () => {
+                    const pain = painSelect.value;
+                    const benefit = benefitSelect.value;
+                    taskScores[task] = { pain, benefit };
+                    saveScores();
+                    updateMatrixGrid();
+                };
+                painSelect.addEventListener('change', update);
+                benefitSelect.addEventListener('change', update);
+
+                matrixScores.appendChild(div);
+            });
+
+            if (uniqueTasks.length === 0) {
+                matrixScores.innerHTML = '<div class="empty-message" style="width:100%;">Нет задач для оценки</div>';
+            }
+            updateMatrixGrid();
+        }
+
+        function updateMatrixGrid() {
+            document.querySelectorAll('.quadrant-list').forEach(el => el.innerHTML = '');
+            const allTasksSet = new Set();
+            Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
+            const uniqueTasks = Array.from(allTasksSet);
+
+            uniqueTasks.forEach(task => {
+                const score = taskScores[task] || { pain: 'medium', benefit: 'medium' };
+                const pain = score.pain;
+                const benefit = score.benefit;
+                let quadrantId;
+                if (benefit === 'high' && pain === 'high') quadrantId = 'quad-high-high';
+                else if (benefit === 'high' && pain === 'low') quadrantId = 'quad-high-low';
+                else if (benefit === 'low' && pain === 'high') quadrantId = 'quad-low-high';
+                else quadrantId = 'quad-low-low';
+
+                const container = document.getElementById(quadrantId);
+                if (container) {
+                    const item = document.createElement('div');
+                    item.className = 'quadrant-item';
+                    item.textContent = task;
+                    container.appendChild(item);
+                }
+            });
+
+            document.querySelectorAll('.quadrant-list').forEach(list => {
+                if (list.children.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-message';
+                    empty.textContent = '—';
+                    empty.style.padding = '3px 0';
+                    list.appendChild(empty);
+                }
+            });
+        }
+
+        function showPriority() {
+            const allTasksSet = new Set();
+            Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
+            const tasks = Array.from(allTasksSet);
+            if (tasks.length === 0) {
+                alert('Нет задач. Сначала выберите задачи в чек-листе.');
+                return;
+            }
+            let hasScores = false;
+            for (const task of tasks) {
+                if (taskScores[task]) { hasScores = true; break; }
+            }
+            if (!hasScores) {
+                alert('Оценки не заданы. Откройте матрицу и оцените боль и выгоду для каждой задачи.');
+                return;
+            }
+
+            const priorityTasks = [];
+            for (const task of tasks) {
+                const score = taskScores[task];
+                if (score && score.pain === 'high' && score.benefit === 'high') {
+                    priorityTasks.push(task);
+                }
+            }
+
+            priorityContent.innerHTML = '';
+            if (priorityTasks.length === 0) {
+                priorityContent.innerHTML = '<div class="empty-message">😊 Нет задач с высокой болью и высокой выгодой. Пересмотрите оценки или вы уже всё автоматизировали!</div>';
+            } else {
+                const list = document.createElement('ul');
+                list.className = 'priority-list';
+                priorityTasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.textContent = task;
+                    list.appendChild(li);
+                });
+                priorityContent.appendChild(list);
+            }
+            priorityOverlay.classList.add('active');
+        }
+
+        function hidePriority() {
+            priorityOverlay.classList.remove('active');
+        }
+
+        function init() {
+            const tasks = loadSelectedTasks();
+            if (!tasks || tasks.length === 0) {
+                boardContainer.style.display = 'none';
+                noDataMessage.style.display = 'flex';
+                actionButtons.style.display = 'none';
+                backlogEl.style.display = 'none';
+                matrixPanel.classList.remove('active');
+                return;
+            }
+
+            allTasks = tasks;
+            boardContainer.style.display = 'flex';
+            noDataMessage.style.display = 'none';
+            actionButtons.style.display = 'flex';
+            backlogEl.style.display = 'flex';
+            matrixPanel.classList.remove('active');
+
+            loadScores();
+
+            const saved = loadRanking();
+            if (saved) {
+                const allSaved = [...saved.quick, ...saved.strategic, ...saved.hopeless, ...saved.backlog];
+                const missing = tasks.filter(t => !allSaved.includes(t));
+                if (missing.length > 0) saved.backlog = [...saved.backlog, ...missing];
+                const validTasks = new Set(tasks);
+                saved.quick = saved.quick.filter(t => validTasks.has(t));
+                saved.strategic = saved.strategic.filter(t => validTasks.has(t));
+                saved.hopeless = saved.hopeless.filter(t => validTasks.has(t));
+                saved.backlog = saved.backlog.filter(t => validTasks.has(t));
+                currentRanking = saved;
+            } else {
+                currentRanking = { quick: [], strategic: [], hopeless: [], backlog: [...tasks] };
+            }
+
+            renderBoard();
+            setupDropZones();
+
+            const currentTasks = new Set(tasks);
+            Object.keys(taskScores).forEach(key => {
+                if (!currentTasks.has(key)) delete taskScores[key];
+            });
+            saveScores();
+        }
+
+        function resetRanking() {
+            if (!allTasks.length) return;
+            if (!confirm('Вернуть все задачи в верхний список (не распределены)?')) return;
+            currentRanking = { quick: [], strategic: [], hopeless: [], backlog: [...allTasks] };
+            renderBoard();
+            saveRanking();
+            if (confirm('Очистить также оценки боли/выгоды?')) {
+                taskScores = {};
+                saveScores();
+                if (matrixPanel.classList.contains('active')) renderMatrix();
+            }
+        }
+
+        function copyRanking() {
+            const quick = currentRanking.quick;
+            const strategic = currentRanking.strategic;
+            const hopeless = currentRanking.hopeless;
+            const backlog = currentRanking.backlog;
+
+            let text = '📊 Ранжирование задач по автоматизации:\n\n';
+            if (backlog.length) {
+                text += '📋 Не распределены (' + backlog.length + '):\n';
+                backlog.forEach((t, i) => text += `  ${i+1}. ${t}\n`);
+                text += '\n';
+            }
+            text += '🚀 Быстрые победы (' + quick.length + '):\n';
+            quick.forEach((t, i) => text += `  ${i+1}. ${t}\n`);
+            text += '\n📊 Стратегические проекты (' + strategic.length + '):\n';
+            strategic.forEach((t, i) => text += `  ${i+1}. ${t}\n`);
+            text += '\n⛔ Безнадёжные (' + hopeless.length + '):\n';
+            hopeless.forEach((t, i) => text += `  ${i+1}. ${t}\n`);
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Ранжирование скопировано!');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Ранжирование скопировано!');
+            });
+        }
+
+        function copyMatrix() {
+            const allTasksSet = new Set();
+            Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
+            const uniqueTasks = Array.from(allTasksSet);
+
+            let text = '📊 Матрица приоритетов (Боль vs Выгода):\n\n';
+            const groups = {
+                'high-high': '🔴 Высокая боль + Высокая выгода (ПРИОРИТЕТ)',
+                'high-low': '🟢 Низкая боль + Высокая выгода',
+                'low-high': '🟠 Высокая боль + Низкая выгода',
+                'low-low': '⚪ Низкая боль + Низкая выгода'
+            };
+            const map = {
+                'high-high': [],
+                'high-low': [],
+                'low-high': [],
+                'low-low': []
+            };
+            uniqueTasks.forEach(task => {
+                const score = taskScores[task] || { pain: 'medium', benefit: 'medium' };
+                const pain = score.pain;
+                const benefit = score.benefit;
+                let key;
+                if (benefit === 'high' && pain === 'high') key = 'high-high';
+                else if (benefit === 'high' && pain === 'low') key = 'high-low';
+                else if (benefit === 'low' && pain === 'high') key = 'low-high';
+                else key = 'low-low';
+                map[key].push(task);
+            });
+
+            for (const [key, label] of Object.entries(groups)) {
+                text += label + ' (' + map[key].length + '):\n';
+                map[key].forEach((t, i) => text += `  ${i+1}. ${t}\n`);
+                text += '\n';
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Матрица скопирована!');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Матрица скопирована!');
+            });
+        }
+
+        function showMatrix() {
+            const allTasksSet = new Set();
+            Object.values(currentRanking).forEach(arr => arr.forEach(t => allTasksSet.add(t)));
+            if (allTasksSet.size === 0) {
+                alert('Нет задач для оценки. Сначала выберите задачи в чек-листе.');
+                return;
+            }
+            boardContainer.style.display = 'none';
+            backlogEl.style.display = 'none';
+            matrixPanel.classList.add('active');
+            renderMatrix();
+        }
+
+        function hideMatrix() {
+            matrixPanel.classList.remove('active');
+            boardContainer.style.display = 'flex';
+            backlogEl.style.display = 'flex';
+            renderBoard();
+        }
+
+        resetBtn.addEventListener('click', resetRanking);
+        copyBtn.addEventListener('click', copyRanking);
+        showMatrixBtn.addEventListener('click', showMatrix);
+        backToBoardBtn.addEventListener('click', hideMatrix);
+        copyMatrixBtn.addEventListener('click', copyMatrix);
+        showPriorityInMatrix.addEventListener('click', showPriority);
+        closePriorityBtn.addEventListener('click', hidePriority);
+        priorityOverlay.addEventListener('click', function(e) {
+            if (e.target === this) hidePriority();
+        });
+
+        init();
+    })();
+</script>
+</body>
+</html>

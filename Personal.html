@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кейс-тренажёр · Сброс по карточкам</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .container {
+      width: 700px;
+      height: 600px;
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 16px 48px rgba(0, 20, 40, 0.10);
+      display: flex;
+      flex-direction: column;
+      padding: 18px 22px 16px;
+      border: 1px solid #e8edf4;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .header {
+      flex-shrink: 0;
+    }
+
+    .header h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #0b2a4a;
+      letter-spacing: -0.2px;
+    }
+
+    .header .sub {
+      font-size: 0.78rem;
+      color: #4a6a8a;
+      margin-top: 1px;
+    }
+
+    .progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0 12px;
+      font-size: 0.75rem;
+      color: #2f5377;
+      background: #f5f8fc;
+      padding: 5px 14px;
+      border-radius: 40px;
+      border: 1px solid #e0e8f2;
+      flex-shrink: 0;
+    }
+
+    .progress .dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .progress .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #dce5ef;
+      transition: background 0.2s;
+    }
+
+    .progress .dot.done {
+      background: #1f8b4c;
+    }
+
+    .progress .dot.done.wrong {
+      background: #b13e3e;
+    }
+
+    .progress .dot.active {
+      background: #3e7bb6;
+      box-shadow: 0 0 0 3px rgba(62, 123, 182, 0.25);
+    }
+
+    .card-wrapper {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      min-height: 0;
+    }
+
+    .card {
+      background: #fafcff;
+      border-radius: 16px;
+      padding: 16px 18px 14px;
+      border: 1.5px solid #e0e8f2;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .card.active {
+      display: flex;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .card-num {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #3e7bb6;
+      letter-spacing: 0.3px;
+    }
+
+    .card-status {
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 1px 12px;
+      border-radius: 40px;
+      background: #e8edf6;
+      color: #4a6a8a;
+    }
+
+    .card-status.checked-correct {
+      background: #e3f0e8;
+      color: #0f6e3a;
+    }
+
+    .card-status.checked-wrong {
+      background: #fce8e6;
+      color: #a13232;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1d3c5c;
+      margin: 4px 0 4px;
+      flex-shrink: 0;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+      color: #2f5377;
+      background: #ffffff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #e8edf6;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    .card-desc i {
+      color: #4a6a8a;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 2px;
+      min-height: 0;
+    }
+
+    .options::-webkit-scrollbar {
+      width: 3px;
+    }
+    .options::-webkit-scrollbar-thumb {
+      background: #d0dcec;
+      border-radius: 12px;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #ffffff;
+      border-radius: 10px;
+      border: 1.5px solid #e0e8f2;
+      cursor: pointer;
+      transition: all 0.1s;
+      font-size: 0.8rem;
+      line-height: 1.35;
+      color: #1a334a;
+      flex-shrink: 0;
+    }
+
+    .option:hover:not(.disabled-option) {
+      background: #eef4fc;
+      border-color: #b0cce5;
+    }
+
+    .option.selected {
+      background: #e3edfa;
+      border-color: #3e7bb6;
+      box-shadow: 0 0 0 2px rgba(62, 123, 182, 0.12);
+    }
+
+    .option.correct-answer {
+      border-color: #1f8b4c;
+      background: #e8f5ee;
+      box-shadow: 0 0 0 2px rgba(31, 139, 76, 0.15);
+    }
+
+    .option.wrong-answer {
+      border-color: #b13e3e;
+      background: #fceeec;
+      box-shadow: 0 0 0 2px rgba(177, 62, 62, 0.15);
+    }
+
+    .option.disabled-option {
+      cursor: default;
+      opacity: 0.8;
+    }
+
+    .option.disabled-option:hover {
+      background: #ffffff;
+      border-color: #e0e8f2;
+    }
+
+    .option.disabled-option.selected {
+      background: #e3edfa;
+      border-color: #3e7bb6;
+    }
+
+    .option input[type="radio"] {
+      margin-top: 2px;
+      flex-shrink: 0;
+      accent-color: #1b4c7a;
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+    }
+
+    .option.disabled-option input[type="radio"] {
+      cursor: default;
+    }
+
+    .option-label {
+      cursor: pointer;
+    }
+
+    .option.disabled-option .option-label {
+      cursor: default;
+    }
+
+    .option-letter {
+      font-weight: 700;
+      color: #3e7bb6;
+      margin-right: 3px;
+    }
+
+    .feedback {
+      padding: 8px 12px;
+      border-radius: 10px;
+      margin: 8px 0 0;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      display: none;
+      flex-shrink: 0;
+    }
+
+    .feedback.visible {
+      display: block;
+    }
+
+    .feedback.correct {
+      background: #e8f5ee;
+      border: 1px solid #1f8b4c;
+      color: #0f5a2e;
+    }
+
+    .feedback.wrong {
+      background: #fceeec;
+      border: 1px solid #b13e3e;
+      color: #7a2828;
+    }
+
+    .feedback .fb-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+      font-size: 0.82rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-shrink: 0;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #eef2f7;
+    }
+
+    .btn {
+      padding: 6px 20px;
+      border-radius: 60px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .btn-check {
+      background: #3e7bb6;
+      color: white;
+    }
+
+    .btn-check:hover:not(:disabled) {
+      background: #2f64a0;
+    }
+
+    .btn-check:disabled {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .btn-primary {
+      background: #1b4c7a;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #0f3a62;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .btn-reset-card {
+      background: transparent;
+      color: #7f97b3;
+      border: 1px solid #d0dcec;
+      padding: 6px 16px;
+      font-size: 0.7rem;
+    }
+
+    .btn-reset-card:hover {
+      background: #f5f8fc;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #1b4c7a;
+      border: 1.5px solid #b0cce5;
+    }
+
+    .btn-outline:hover {
+      background: #eef4fc;
+    }
+
+    /* итоговый результат */
+    .final-result {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      padding: 8px 6px 4px;
+      overflow-y: auto;
+    }
+
+    .final-result.visible {
+      display: flex;
+    }
+
+    .final-result h3 {
+      font-size: 1rem;
+      margin-bottom: 4px;
+      color: #0b2a4a;
+    }
+
+    .final-result .badge {
+      display: inline-block;
+      padding: 3px 16px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+
+    .badge-authoritarian {
+      background: #fce8e6;
+      color: #a13232;
+    }
+
+    .badge-dialog {
+      background: #e3f0e8;
+      color: #0f6e3a;
+    }
+
+    .badge-soothing {
+      background: #f5f0e0;
+      color: #8a7520;
+    }
+
+    .final-result .desc {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: #142b3f;
+      margin-bottom: 6px;
+    }
+
+    .final-result .advice {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: #142b3f;
+      padding-top: 8px;
+      border-top: 1px solid #e8edf4;
+      margin-top: 6px;
+    }
+
+    .final-result .advice strong {
+      color: #0b2a4a;
+    }
+
+    .final-result .score-detail {
+      font-size: 0.75rem;
+      color: #4a6a8a;
+      margin-top: 6px;
+    }
+
+    .final-result .btn-back {
+      margin-top: 10px;
+      align-self: center;
+    }
+
+    .card-wrapper.hidden {
+      display: none;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid #eef2f7;
+    }
+
+    .footer .hint {
+      font-size: 0.65rem;
+      color: #7f97b3;
+    }
+
+    @media (max-width: 720px) {
+      .container {
+        width: 100%;
+        height: 100vh;
+        max-height: 600px;
+        border-radius: 0;
+        padding: 14px 16px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="app">
+
+  <div class="header">
+    <h1>🧩 Кейс-тренажёр: «Снять сопротивление»</h1>
+    <div class="sub">Руководитель ОПБ · Ситуации по одной с проверкой</div>
+  </div>
+
+  <div class="progress" id="progressBar">
+    <span id="progressText">Карточка 1 из 5</span>
+    <span class="dots" id="progressDots"></span>
+  </div>
+
+  <div class="card-wrapper" id="cardWrapper">
+    <div id="cardsContainer" style="height:100%;"></div>
+  </div>
+
+  <div class="final-result" id="finalResult">
+    <h3>📊 Ваш подход</h3>
+    <div id="finalBadge" class="badge"></div>
+    <div id="finalDescription" class="desc"></div>
+    <div id="finalAdvice" class="advice"></div>
+    <div id="finalScore" class="score-detail"></div>
+    <button class="btn btn-outline btn-back" id="resetFromFinalBtn">⟳ Пройти заново</button>
+  </div>
+
+  <div class="footer">
+    <span class="hint">💡 Выберите ответ → Проверьте → Дальше</span>
+    <button class="btn btn-reset-card" id="resetCurrentBtn">⟳ Сбросить эту карточку</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- ДАННЫЕ ----------
+    const situations = [
+      {
+        id: 's1',
+        title: 'Общее объявление',
+        desc: 'Как вы представите новость команде?',
+        options: [
+          { label: 'A', text: '«Руководство приняло решение, наша задача — выполнить. Подготовьтесь к переходу на новую систему в течение месяца».', type: 'authoritarian' },
+          { label: 'B', text: '«У нас запускается пилотный проект. Мы будем тестировать новую систему параллельно с текущей, без резких изменений. Ваше участие и обратная связь — ключевые для успеха».', type: 'dialog' },
+          { label: 'C', text: '«Это отличная возможность упростить нашу работу. Я уверен, что вы справитесь, тем более что система очень простая».', type: 'soothing' }
+        ],
+        correctType: 'dialog'
+      },
+      {
+        id: 's2',
+        title: 'Иван (опытный скептик)',
+        desc: 'Иван говорит, что нововведения только отвлекают от реальной работы.',
+        options: [
+          { label: 'A', text: '«Иван, я понимаю ваше беспокойство. Давайте я покажу, как система сократит время на оформление нарядов — вы сможете тратить его на обходы и контроль оборудования».', type: 'dialog' },
+          { label: 'B', text: '«Иван, вы опытный специалист, ваша экспертиза останется востребованной. Система возьмёт на себя рутину, а вы будете контролировать то, что действительно важно».', type: 'dialog' },
+          { label: 'C', text: '«Иван, сейчас все переходят на цифру, это неизбежно. Лучше не отставайте от времени».', type: 'authoritarian' }
+        ],
+        correctType: 'dialog'
+      },
+      {
+        id: 's3',
+        title: 'Сергей (боится сокращений)',
+        desc: 'Сергей уверен, что автоматизация приведёт к увольнениям.',
+        options: [
+          { label: 'A', text: '«Сергей, мы не сокращаем людей. Мы перераспределяем задачи: меньше бумаг — больше времени на анализ и предотвращение аварий. Без людей система бесполезна».', type: 'dialog' },
+          { label: 'B', text: '«Сергей, я понимаю, почему вы так думаете. Давайте я покажу структуру нового процесса — вы увидите, что ваша роль не исчезает, а меняется».', type: 'dialog' },
+          { label: 'C', text: '«Сергей, ничего не бойтесь. Все будет хорошо».', type: 'soothing' }
+        ],
+        correctType: 'dialog'
+      },
+      {
+        id: 's4',
+        title: 'Анна (не уверена в цифровых навыках)',
+        desc: 'Анна говорит, что не разбирается в компьютерах и не сможет работать.',
+        options: [
+          { label: 'A', text: '«Анна, мы проведём обучение на ваших реальных задачах. Никаких абстрактных инструкций — только то, что вы делаете каждый день. Я сам буду рядом на первых этапах».', type: 'dialog' },
+          { label: 'B', text: '«Анна, не переживайте, там всё интуитивно понятно. Справитесь».', type: 'soothing' },
+          { label: 'C', text: '«Анна, в отделе есть молодые коллеги, они помогут вам освоиться».', type: 'soothing' }
+        ],
+        correctType: 'dialog'
+      },
+      {
+        id: 's5',
+        title: 'Дмитрий (техническая тревога)',
+        desc: 'Дмитрий боится, что система «ляжет» и все процессы остановятся.',
+        options: [
+          { label: 'A', text: '«Дмитрий, отличный вопрос. Именно поэтому мы запускаем параллельное ведение — бумага и электроника вместе в течение двух месяцев. Если что-то пойдёт не так, у нас есть страховка».', type: 'dialog' },
+          { label: 'B', text: '«Дмитрий, у нас надёжный вендор и тестирование уже прошло. Не переживайте».', type: 'soothing' },
+          { label: 'C', text: '«Дмитрий, если система упадёт, будем разбираться по ситуации. Пока работает».', type: 'authoritarian' }
+        ],
+        correctType: 'dialog'
+      }
+    ];
+
+    // ---------- СОСТОЯНИЕ ----------
+    let state = situations.map(() => ({
+      selected: null,
+      checked: false,
+      isCorrect: false
+    }));
+    let currentIndex = 0;
+
+    // DOM
+    const cardsContainer = document.getElementById('cardsContainer');
+    const progressText = document.getElementById('progressText');
+    const progressDots = document.getElementById('progressDots');
+    const finalResult = document.getElementById('finalResult');
+    const cardWrapper = document.getElementById('cardWrapper');
+    const finalBadge = document.getElementById('finalBadge');
+    const finalDescription = document.getElementById('finalDescription');
+    const finalAdvice = document.getElementById('finalAdvice');
+    const finalScore = document.getElementById('finalScore');
+    const resetCurrentBtn = document.getElementById('resetCurrentBtn');
+    const resetFromFinalBtn = document.getElementById('resetFromFinalBtn');
+
+    // ---------- РЕНДЕР ----------
+    function render() {
+      renderCards();
+      renderProgress();
+      updateFinalResult();
+    }
+
+    function renderCards() {
+      cardsContainer.innerHTML = '';
+      situations.forEach((sit, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        if (idx === currentIndex) card.classList.add('active');
+        card.dataset.index = idx;
+
+        const st = state[idx];
+
+        const top = document.createElement('div');
+        top.className = 'card-top';
+        const num = document.createElement('span');
+        num.className = 'card-num';
+        num.textContent = `Ситуация ${idx+1} / ${situations.length}`;
+        top.appendChild(num);
+        const status = document.createElement('span');
+        status.className = 'card-status';
+        if (st.checked) {
+          if (st.isCorrect) {
+            status.textContent = '✅ Верно';
+            status.classList.add('checked-correct');
+          } else {
+            status.textContent = '❌ Неверно';
+            status.classList.add('checked-wrong');
+          }
+        } else {
+          status.textContent = '⬜ Ожидает';
+        }
+        top.appendChild(status);
+        card.appendChild(top);
+
+        const title = document.createElement('div');
+        title.className = 'card-title';
+        title.textContent = sit.title;
+        card.appendChild(title);
+
+        const desc = document.createElement('div');
+        desc.className = 'card-desc';
+        desc.innerHTML = `<i>${sit.desc}</i>`;
+        card.appendChild(desc);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+
+        sit.options.forEach((opt, optIdx) => {
+          const label = document.createElement('label');
+          label.className = 'option';
+          if (st.selected === optIdx) label.classList.add('selected');
+
+          if (st.checked) {
+            label.classList.add('disabled-option');
+            if (opt.type === sit.correctType) label.classList.add('correct-answer');
+            if (st.selected === optIdx && st.selected !== null && !st.isCorrect) {
+              label.classList.add('wrong-answer');
+            }
+          }
+
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = `q${idx}`;
+          radio.value = optIdx;
+          if (st.selected === optIdx) radio.checked = true;
+          radio.disabled = st.checked;
+
+          radio.addEventListener('change', () => {
+            if (st.checked) return;
+            const allOpts = card.querySelectorAll('.option');
+            allOpts.forEach(el => el.classList.remove('selected'));
+            label.classList.add('selected');
+            state[idx].selected = optIdx;
+            render();
+          });
+
+          const span = document.createElement('span');
+          span.className = 'option-label';
+          span.innerHTML = `<span class="option-letter">${opt.label}</span> ${opt.text}`;
+
+          label.appendChild(radio);
+          label.appendChild(span);
+          optionsDiv.appendChild(label);
+        });
+
+        card.appendChild(optionsDiv);
+
+        const fb = document.createElement('div');
+        fb.className = 'feedback';
+        if (st.checked) {
+          fb.classList.add('visible');
+          if (st.isCorrect) {
+            fb.classList.add('correct');
+            fb.innerHTML = `<div class="fb-title">✅ Правильно!</div><div>Эффективный подход. Сотрудники чувствуют уважение.</div>`;
+          } else {
+            fb.classList.add('wrong');
+            const correctLabel = sit.options.find(o => o.type === sit.correctType)?.label || '?';
+            fb.innerHTML = `<div class="fb-title">❌ Неверно.</div><div>Лучше было выбрать <strong>${correctLabel}</strong> — это выстраивает диалог.</div>`;
+          }
+        }
+        card.appendChild(fb);
+
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+
+        const checkBtn = document.createElement('button');
+        checkBtn.className = 'btn btn-check';
+        checkBtn.textContent = '✅ Проверить';
+        checkBtn.disabled = st.checked || st.selected === null;
+
+        checkBtn.addEventListener('click', () => {
+          if (st.checked || st.selected === null) return;
+          const selectedOpt = sit.options[st.selected];
+          const isCorrect = selectedOpt.type === sit.correctType;
+          state[idx].isCorrect = isCorrect;
+          state[idx].checked = true;
+          render();
+        });
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'btn btn-primary';
+        nextBtn.textContent = idx === situations.length - 1 ? '📊 Итог' : '➜ Дальше';
+        nextBtn.disabled = !st.checked;
+
+        nextBtn.addEventListener('click', () => {
+          if (!st.checked) return;
+          if (idx === situations.length - 1) {
+            showFinalResult();
+          } else {
+            currentIndex = idx + 1;
+            render();
+          }
+        });
+
+        actions.appendChild(checkBtn);
+        actions.appendChild(nextBtn);
+        card.appendChild(actions);
+
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    function renderProgress() {
+      progressText.textContent = `Карточка ${currentIndex+1} из ${situations.length}`;
+      progressDots.innerHTML = '';
+      situations.forEach((_, idx) => {
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        const st = state[idx];
+        if (st.checked) {
+          dot.classList.add('done');
+          if (!st.isCorrect) dot.classList.add('wrong');
+        }
+        if (idx === currentIndex && !st.checked) {
+          dot.classList.add('active');
+        }
+        progressDots.appendChild(dot);
+      });
+    }
+
+    // ---------- СБРОС ТЕКУЩЕЙ КАРТОЧКИ ----------
+    function resetCurrentCard() {
+      const st = state[currentIndex];
+      st.selected = null;
+      st.checked = false;
+      st.isCorrect = false;
+      render();
+    }
+
+    // ---------- ИТОГ ----------
+    function showFinalResult() {
+      let counts = { authoritarian: 0, dialog: 0, soothing: 0 };
+      situations.forEach((sit, idx) => {
+        const st = state[idx];
+        if (st.selected !== null) {
+          const type = sit.options[st.selected].type;
+          counts[type]++;
+        }
+      });
+
+      let dominant = 'dialog';
+      let maxCount = counts.dialog;
+      if (counts.authoritarian > maxCount) { dominant = 'authoritarian'; maxCount = counts.authoritarian; }
+      if (counts.soothing > maxCount) { dominant = 'soothing'; maxCount = counts.soothing; }
+      if (counts.authoritarian === counts.dialog && counts.dialog === counts.soothing) dominant = 'dialog';
+
+      const map = {
+        authoritarian: {
+          badge: 'Авторитарный стиль',
+          badgeClass: 'badge-authoritarian',
+          description: 'Вы действуете жёстко, делаете упор на приказы. Сопротивление усилится. Сотрудники будут выполнять формально, без доверия.',
+          advice: '💡 <strong>Что делать?</strong> Смените тон: признавайте страхи, предлагайте помощь, вовлекайте в процесс. Вместо «надо» — «давайте попробуем вместе».'
+        },
+        dialog: {
+          badge: 'Диалоговый стиль',
+          badgeClass: 'badge-dialog',
+          description: 'Вы выстраиваете диалог, признаёте эмоции, предлагаете решения. Это путь к принятию. Сотрудники чувствуют уважение и поддержку.',
+          advice: '💡 <strong>Отлично!</strong> Продолжайте в том же духе. Добавьте живые примеры, регулярно спрашивайте обратную связь — так вы превратите скептиков в союзников.'
+        },
+        soothing: {
+          badge: 'Успокаивающий стиль',
+          badgeClass: 'badge-soothing',
+          description: 'Вы используете общие фразы и утешения. Это не даёт реальной поддержки и воспринимается как отмахивание. Людям нужны конкретные шаги.',
+          advice: '💡 <strong>Что делать?</strong> Замените ободрения на действия: покажите систему в работе, предложите обучение, отвечайте чётко и предметно.'
+        }
+      };
+
+      const res = map[dominant];
+      finalBadge.textContent = res.badge;
+      finalBadge.className = `badge ${res.badgeClass}`;
+      finalDescription.innerHTML = `<p>${res.description}</p>`;
+      finalAdvice.innerHTML = res.advice;
+
+      const total = situations.length;
+      finalScore.innerHTML = `
+        🔹 Авторитарных: ${counts.authoritarian} / ${total} &nbsp;·&nbsp;
+        🔸 Диалоговых: ${counts.dialog} / ${total} &nbsp;·&nbsp;
+        🔹 Успокаивающих: ${counts.soothing} / ${total}
+      `;
+
+      cardWrapper.style.display = 'none';
+      finalResult.classList.add('visible');
+    }
+
+    function updateFinalResult() {
+      const allChecked = state.every(st => st.checked);
+      if (allChecked && !finalResult.classList.contains('visible')) {
+        showFinalResult();
+      }
+    }
+
+    // ---------- ПОЛНЫЙ СБРОС ----------
+    function resetAll() {
+      state = situations.map(() => ({
+        selected: null,
+        checked: false,
+        isCorrect: false
+      }));
+      currentIndex = 0;
+      finalResult.classList.remove('visible');
+      cardWrapper.style.display = 'block';
+      render();
+    }
+
+    // ---------- ИНИЦИАЛИЗАЦИЯ ----------
+    render();
+    resetCurrentBtn.addEventListener('click', resetCurrentCard);
+    resetFromFinalBtn.addEventListener('click', resetAll);
+  })();
+</script>
+</body>
+</html>

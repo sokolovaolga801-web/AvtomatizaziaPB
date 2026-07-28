@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цифровой трансформатор ОПО</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: white;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+        .container {
+            width: 700px;
+            height: 700px;
+            background: white;
+            border-radius: 32px;
+            padding: 16px 18px 18px;
+            box-shadow: 0 20px 40px -12px rgba(0,20,40,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e8edf4;
+        }
+        h1 {
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: #0b2b4a;
+            margin: 0 0 4px 0;
+            letter-spacing: -0.2px;
+            flex-shrink: 0;
+        }
+        /* зона инициатив — сверху, последовательно */
+        .initiative-area {
+            flex-shrink: 0;
+            min-height: 100px;
+            background: #f2f6fb;
+            border-radius: 16px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            border: 2px dashed #c6d7e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.15s;
+        }
+        .initiative-card {
+            background: white;
+            border-radius: 14px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0, 20, 40, 0.08);
+            border-left: 5px solid #2b7c9b;
+            width: 100%;
+            cursor: grab;
+            user-select: none;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #1a3752;
+            transition: 0.1s;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            word-break: break-word;
+        }
+        .initiative-card:hover {
+            background: #f8fcff;
+            border-left-color: #0f5b7a;
+            box-shadow: 0 6px 16px rgba(0, 40, 70, 0.1);
+        }
+        .initiative-card:active {
+            cursor: grabbing;
+            opacity: 0.6;
+        }
+        .initiative-card .id-badge {
+            background: #dce7f2;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            color: #1f3d57;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .initiative-card .text {
+            flex: 1;
+            overflow-wrap: break-word;
+        }
+        .empty-card-placeholder {
+            color: #8ba5c0;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* корзины */
+        .baskets-area {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            min-height: 0;
+        }
+        .basket {
+            background: #f9fbfd;
+            border-radius: 16px;
+            padding: 6px 8px 8px;
+            border: 2px dashed #cbd8e6;
+            transition: 0.12s;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .basket-header {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #0b2a44;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #d7e0e9;
+            padding-bottom: 3px;
+            margin-bottom: 4px;
+            flex-shrink: 0;
+            cursor: help;
+            position: relative;
+            flex-wrap: wrap;
+        }
+        .basket-header .count {
+            background: #d0dceb;
+            border-radius: 40px;
+            padding: 0 8px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: #1a3f5c;
+        }
+        .basket-header .label-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        /* всплывающая подсказка-определение — появляется СНИЗУ */
+        .basket-header .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            width: 100%;
+            max-width: 240px;
+            background: #0b2a44;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 5px 8px;
+            position: absolute;
+            z-index: 100;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 4px;
+            font-weight: 400;
+            font-size: 0.6rem;
+            line-height: 1.3;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            pointer-events: none;
+            white-space: normal;
+            word-break: break-word;
+        }
+        .basket-header .tooltip::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-bottom-color: #0b2a44;
+        }
+        .basket-header:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .basket-dropzone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow-y: auto;
+            min-height: 0;
+            padding-right: 2px;
+            padding-top: 22px;
+        }
+        .basket-dropzone::-webkit-scrollbar {
+            width: 3px;
+        }
+        .basket-dropzone::-webkit-scrollbar-thumb {
+            background: #bccfe0;
+            border-radius: 10px;
+        }
+        .basket-item {
+            background: white;
+            border-radius: 10px;
+            padding: 6px 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02), 0 0 0 1px #dbe2eb;
+            font-size: 0.75rem;
+            line-height: 1.35;
+            border-left: 3px solid #809bb3;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: 0.15s;
+            flex-shrink: 0;
+            word-break: break-word;
+            min-height: 32px;
+            width: 100%;
+        }
+        .basket-item .id {
+            font-weight: 600;
+            color: #1d4d72;
+            flex-shrink: 0;
+            font-size: 0.7rem;
+        }
+        .basket-item .text-wrap {
+            flex: 1;
+            word-break: break-word;
+            white-space: normal;
+            min-width: 0;
+            line-height: 1.35;
+        }
+        .basket-item .remove-btn {
+            margin-left: auto;
+            background: #ecf2f9;
+            border: none;
+            border-radius: 30px;
+            padding: 0 8px;
+            font-size: 0.6rem;
+            color: #3a5b79;
+            cursor: pointer;
+            transition: 0.1s;
+            flex-shrink: 0;
+            line-height: 1.6;
+        }
+        .basket-item .remove-btn:hover {
+            background: #d5e0ed;
+        }
+        .empty-hint {
+            color: #9bb0c7;
+            font-size: 0.6rem;
+            padding: 8px 0 2px 4px;
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* подсветка при проверке */
+        .basket-item.correct {
+            background: #d4edda !important;
+            border-left-color: #28a745 !important;
+            box-shadow: 0 0 0 2px #28a745 !important;
+        }
+        .basket-item.incorrect {
+            background: #f8d7da !important;
+            border-left-color: #dc3545 !important;
+            box-shadow: 0 0 0 2px #dc3545 !important;
+        }
+
+        .controls {
+            flex-shrink: 0;
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px 10px;
+        }
+        .btn {
+            background: white;
+            border: 1px solid #bccfe0;
+            padding: 5px 16px;
+            border-radius: 60px;
+            font-weight: 600;
+            color: #1a405b;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .btn-primary {
+            background: #1b4f72;
+            border: 1px solid #1b4f72;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0f3a55;
+        }
+        .btn-outline:hover {
+            background: #edf3fa;
+        }
+        .controls .hint {
+            color: #2d5a7a;
+            font-size: 0.65rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <h1>🧪 Цифровой трансформатор ОПО</h1>
+
+    <!-- Зона текущей инициативы -->
+    <div class="initiative-area" id="initiativeArea">
+        <div class="empty-card-placeholder" id="placeholderText">⬅️ Перетащите карточку в корзину, появится следующая</div>
+        <div id="currentCardContainer" style="width:100%; display:none;"></div>
+    </div>
+
+    <!-- Корзины -->
+    <div class="baskets-area" id="basketsContainer">
+        <div class="basket" data-basket="оцифровка">
+            <div class="basket-header">
+                <span class="label-wrap">📄 Оцифровка</span>
+                <span class="count" id="count-оцифровка">0</span>
+                <span class="tooltip">Перевод бумажных документов в электронные копии (скан-образы) без изменения процессов работы.</span>
+            </div>
+            <div class="basket-dropzone" id="drop-оцифровка"></div>
+        </div>
+        <div class="basket" data-basket="оптимизация">
+            <div class="basket-header">
+                <span class="label-wrap">⚙️ Оптимизация</span>
+                <span class="count" id="count-оптимизация">0</span>
+                <span class="tooltip">Улучшение существующих процессов без замены человека на машину — за счёт новых правил, логистики или оборудования.</span>
+            </div>
+            <div class="basket-dropzone" id="drop-оптимизация"></div>
+        </div>
+        <div class="basket" data-basket="автоматизация">
+            <div class="basket-header">
+                <span class="label-wrap">🤖 Автоматизация</span>
+                <span class="count" id="count-автоматизация">0</span>
+                <span class="tooltip">Машина выполняет рутинные задачи за человека, но специалист управляет процессом и утверждает результаты.</span>
+            </div>
+            <div class="basket-dropzone" id="drop-автоматизация"></div>
+        </div>
+        <div class="basket" data-basket="цифровизация">
+            <div class="basket-header">
+                <span class="label-wrap">🧠 Цифровизация</span>
+                <span class="count" id="count-цифровизация">0</span>
+                <span class="tooltip">Система самостоятельно принимает решения по алгоритму, заменяя аналитическую функцию человека; специалист лишь управляет целями.</span>
+            </div>
+            <div class="basket-dropzone" id="drop-цифровизация"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-primary" id="checkBtn">✅ Проверить</button>
+        <button class="btn btn-outline" id="resetBtn">⟳ Сброс</button>
+        <span class="hint">перетащите карточку</span>
+    </div>
+</div>
+<script>
+    (function() {
+        // ----- данные -----
+        const initiativesData = [
+            { id: 1, text: 'Отсканировать все паспорта на оборудование и сложить в общую папку на сервере.' },
+            { id: 2, text: 'Провести ревизию: заменить устаревшие клапаны на новые, чтобы снизить риск разгерметизации за счет физических свойств металла.' },
+            { id: 3, text: 'Внедрить программу-«конструктор», куда инженер вводит параметры оборудования, и программа создает проект декларации ПБ, но расчет рисков утверждает специалист.' },
+            { id: 4, text: 'Установить на краны и прессы машинное зрение, которая в реальном времени определяет, что стропальщик начал движение по опасной траектории, и автоматически блокирует работу крана, отправляя начальнику цеха готовый акт о нарушении.' },
+            { id: 5, text: 'Закупить удобные каски с креплением для фонарика, чтобы ускорить обход территории.' },
+            { id: 6, text: 'Изменить маршрут патрулирования газоопасных участков, сократив холостой ход наблюдателя на 40%.' },
+            { id: 7, text: 'Внедрить систему, которая по датчикам каждые 10 секунд снимает показания давления и температуры с 1000 точек и формирует сводный отчет в Excel. Инженер только проверяет графики и подписывает.' },
+            { id: 8, text: 'Внедрить ИИ-ассистента для анализа инцидентов на аналогичных ОПО по всему миру и автоматической диагностики причин простоев, расчета оптимального времени ремонта без штрафов.' }
+        ];
+
+        const correctMap = {
+            1: 'оцифровка',
+            2: 'оптимизация',
+            3: 'автоматизация',
+            4: 'цифровизация',
+            5: 'оптимизация',
+            6: 'оптимизация',
+            7: 'автоматизация',
+            8: 'цифровизация'
+        };
+
+        let state = {
+            оцифровка: [],
+            оптимизация: [],
+            автоматизация: [],
+            цифровизация: []
+        };
+
+        let queue = initiativesData.map(d => d.id);
+        let currentId = null;
+        let checkMode = false;
+
+        // DOM
+        const currentCardContainer = document.getElementById('currentCardContainer');
+        const placeholderText = document.getElementById('placeholderText');
+
+        const dropZones = {
+            оцифровка: document.getElementById('drop-оцифровка'),
+            оптимизация: document.getElementById('drop-оптимизация'),
+            автоматизация: document.getElementById('drop-автоматизация'),
+            цифровизация: document.getElementById('drop-цифровизация')
+        };
+        const countEls = {
+            оцифровка: document.getElementById('count-оцифровка'),
+            оптимизация: document.getElementById('count-оптимизация'),
+            автоматизация: document.getElementById('count-автоматизация'),
+            цифровизация: document.getElementById('count-цифровизация')
+        };
+
+        // ----- обновление очереди и карточки -----
+        function updateQueueAndCard() {
+            const usedIds = new Set();
+            for (let key of ['оцифровка','оптимизация','автоматизация','цифровизация']) {
+                state[key].forEach(id => usedIds.add(id));
+            }
+            queue = initiativesData.filter(d => !usedIds.has(d.id)).map(d => d.id);
+
+            if (queue.length === 0) {
+                currentId = null;
+                currentCardContainer.style.display = 'none';
+                placeholderText.style.display = 'block';
+                placeholderText.textContent = '✅ Все инициативы распределены!';
+                return;
+            }
+
+            currentId = queue[0];
+            const item = initiativesData.find(d => d.id === currentId);
+            if (!item) return;
+
+            placeholderText.style.display = 'none';
+            currentCardContainer.style.display = 'block';
+            currentCardContainer.innerHTML = '';
+
+            const card = document.createElement('div');
+            card.className = 'initiative-card';
+            card.draggable = true;
+            card.dataset.id = item.id;
+            card.innerHTML = `
+                <span class="id-badge">#${item.id}</span>
+                <span class="text">${item.text}</span>
+            `;
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+            currentCardContainer.appendChild(card);
+        }
+
+        // ----- рендер корзин -----
+        function renderBaskets(keepHighlight = false) {
+            for (let key of ['оцифровка','оптимизация','автоматизация','цифровизация']) {
+                const zone = dropZones[key];
+                zone.innerHTML = '';
+                const ids = state[key];
+                if (ids.length === 0) {
+                    const hint = document.createElement('div');
+                    hint.className = 'empty-hint';
+                    hint.textContent = '⟵ перетащите сюда';
+                    zone.appendChild(hint);
+                } else {
+                    ids.forEach(id => {
+                        const item = initiativesData.find(d => d.id === id);
+                        if (!item) return;
+                        const div = document.createElement('div');
+                        div.className = 'basket-item';
+                        div.dataset.id = id;
+                        div.dataset.basket = key;
+                        if (checkMode && keepHighlight) {
+                            const expected = correctMap[id];
+                            if (expected === key) {
+                                div.classList.add('correct');
+                            } else {
+                                div.classList.add('incorrect');
+                            }
+                        }
+                        div.innerHTML = `
+                            <span class="id">#${id}</span>
+                            <span class="text-wrap">${item.text}</span>
+                            <button class="remove-btn" data-id="${id}">✕</button>
+                        `;
+                        const btn = div.querySelector('.remove-btn');
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            removeFromBasket(id);
+                        });
+                        div.draggable = true;
+                        div.addEventListener('dragstart', handleDragStart);
+                        div.addEventListener('dragend', handleDragEnd);
+                        zone.appendChild(div);
+                    });
+                }
+            }
+            updateCounts();
+        }
+
+        function updateCounts() {
+            for (let key of ['оцифровка','оптимизация','автоматизация','цифровизация']) {
+                countEls[key].textContent = state[key].length;
+            }
+        }
+
+        // ----- drag & drop -----
+        let draggedId = null;
+
+        function handleDragStart(e) {
+            const el = e.target.closest('.initiative-card, .basket-item');
+            if (!el) return;
+            const id = parseInt(el.dataset.id);
+            if (!id) return;
+            draggedId = id;
+            e.dataTransfer.setData('text/plain', id);
+            e.dataTransfer.effectAllowed = 'move';
+            el.style.opacity = '0.5';
+            if (el.classList.contains('basket-item')) {
+                el.classList.remove('correct', 'incorrect');
+            }
+        }
+
+        function handleDragEnd(e) {
+            const el = e.target.closest('.initiative-card, .basket-item');
+            if (el) el.style.opacity = '1';
+        }
+
+        for (let key of ['оцифровка','оптимизация','автоматизация','цифровизация']) {
+            const zone = dropZones[key];
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                zone.style.background = '#e3edf6';
+            });
+            zone.addEventListener('dragleave', (e) => {
+                zone.style.background = '';
+            });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.style.background = '';
+                const id = parseInt(e.dataTransfer.getData('text/plain'));
+                if (!id) return;
+
+                for (let k of ['оцифровка','оптимизация','автоматизация','цифровизация']) {
+                    const idx = state[k].indexOf(id);
+                    if (idx !== -1) {
+                        state[k].splice(idx, 1);
+                        break;
+                    }
+                }
+                state[key].push(id);
+                checkMode = false;
+                renderBaskets(false);
+                updateQueueAndCard();
+            });
+        }
+
+        function removeFromBasket(id) {
+            for (let k of ['оцифровка','оптимизация','автоматизация','цифровизация']) {
+                const idx = state[k].indexOf(id);
+                if (idx !== -1) {
+                    state[k].splice(idx, 1);
+                    checkMode = false;
+                    renderBaskets(false);
+                    updateQueueAndCard();
+                    return;
+                }
+            }
+        }
+
+        // ----- проверка с подсветкой (без блока обратной связи) -----
+        function checkAnswers() {
+            let total = 0;
+            for (let key of ['оцифровка','оптимизация','автоматизация','цифровизация']) {
+                total += state[key].length;
+            }
+
+            if (total === 0) {
+                return;
+            }
+
+            checkMode = true;
+            renderBaskets(true);
+        }
+
+        // ----- сброс -----
+        function resetAll() {
+            state = {
+                оцифровка: [],
+                оптимизация: [],
+                автоматизация: [],
+                цифровизация: []
+            };
+            checkMode = false;
+            renderBaskets(false);
+            updateQueueAndCard();
+        }
+
+        // ----- инициализация -----
+        document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+        document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+        renderBaskets(false);
+        updateQueueAndCard();
+
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => e.preventDefault());
+    })();
+</script>
+</body>
+</html>
